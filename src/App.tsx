@@ -1,9 +1,13 @@
-import React, { useEffect, useState, FormEvent } from 'react';
+import React, { useEffect, useState, useCallback, FormEvent } from 'react';
 import emailjs from '@emailjs/browser';
 import profileImage from './profile.jpeg';
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
 import { Toaster, toast } from 'react-hot-toast';
+import Particles, { initParticlesEngine } from '@tsparticles/react';
+import { loadSlim } from '@tsparticles/slim';
+import type { Container, ISourceOptions } from '@tsparticles/engine';
+import CountUp from 'react-countup';
 import {
   Github,
   Linkedin,
@@ -21,7 +25,12 @@ import {
   ArrowRight,
   ChevronRight,
   Settings,
-  User,
+  CheckCircle2,
+  Play,
+  Package,
+  Server,
+  Activity,
+  Send,
 } from 'lucide-react';
 
 emailjs.init("cA1VSomT1TRDBhsq9");
@@ -40,11 +49,88 @@ const staggerContainer = {
   visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
 };
 
+// Terminal lines with typed-out animation
+const terminalLines = [
+  { cmd: '$ git push origin main', result: '✓ Pipeline #247 triggered [2s]', delay: 0 },
+  { cmd: '$ docker build -t app:latest .', result: '✓ Image built (247MB) [18s]', delay: 2200 },
+  { cmd: '$ kubectl rollout status deploy/app', result: '✓ Rolled out to 3/3 pods [4s]', delay: 4400 },
+  { cmd: '$ terraform apply -auto-approve', result: '✓ 12 resources applied [32s]', delay: 6600 },
+];
+
+function HeroTerminal() {
+  const [visibleLines, setVisibleLines] = useState<number>(0);
+
+  useEffect(() => {
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    terminalLines.forEach((line, i) => {
+      timers.push(setTimeout(() => setVisibleLines(i + 1), line.delay + 800));
+    });
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.9, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className="terminal-window w-full max-w-lg"
+    >
+      {/* Traffic light dots */}
+      <div className="terminal-header">
+        <div className="flex items-center gap-2">
+          <span className="traffic-dot bg-red-500" />
+          <span className="traffic-dot bg-yellow-400" />
+          <span className="traffic-dot bg-green-500" />
+        </div>
+        <span className="terminal-title">ghassen@devops-lab:~$</span>
+        <span className="text-[10px] text-green-400/60 font-mono">LIVE</span>
+      </div>
+
+      {/* Terminal body */}
+      <div className="terminal-body scanline">
+        {terminalLines.map((line, i) =>
+          i < visibleLines ? (
+            <div key={i} className="mb-4 last:mb-0">
+              <div className="terminal-cmd">
+                <TypeAnimation
+                  sequence={[line.cmd]}
+                  speed={65}
+                  className="text-green-300 font-mono text-sm"
+                  cursor={i === visibleLines - 1 && visibleLines < terminalLines.length}
+                />
+              </div>
+              {i < visibleLines - 0 && (
+                <div className="terminal-result text-green-400/80 font-mono text-xs mt-1 pl-2">
+                  {line.result}
+                </div>
+              )}
+            </div>
+          ) : null
+        )}
+        {visibleLines >= terminalLines.length && (
+          <div className="flex items-center gap-1 mt-3">
+            <span className="text-green-300 font-mono text-sm">$</span>
+            <span className="cursor-blink" />
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
 function App() {
+  const [particlesReady, setParticlesReady] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [formData, setFormData] = useState({ email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Init tsparticles engine
+  useEffect(() => {
+    initParticlesEngine(async (engine) => {
+      await loadSlim(engine);
+    }).then(() => setParticlesReady(true));
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -77,10 +163,10 @@ function App() {
         from_email: formData.email,
         message: formData.message,
       });
-      toast.success('Message sent!');
+      toast.success('201 Created ✓ Message delivered!', { icon: '📡' });
       setFormData({ email: '', message: '' });
     } catch {
-      toast.error('Failed to send. Try again.');
+      toast.error('500 Internal Error — Try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -89,6 +175,42 @@ function App() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const particlesLoaded = useCallback(async (_container: Container | undefined) => {}, []);
+
+  const particlesOptions: ISourceOptions = {
+    background: { color: { value: 'transparent' } },
+    fpsLimit: 60,
+    interactivity: {
+      events: {
+        onHover: { enable: false },
+        onClick: { enable: false },
+      },
+    },
+    particles: {
+      color: { value: ['#00d4ff', '#00ff9d', '#7928ca'] },
+      links: {
+        color: '#00d4ff',
+        distance: 140,
+        enable: true,
+        opacity: 0.25,
+        width: 1,
+      },
+      move: {
+        direction: 'none',
+        enable: true,
+        outModes: { default: 'bounce' },
+        random: false,
+        speed: 0.8,
+        straight: false,
+      },
+      number: { density: { enable: true }, value: 60 },
+      opacity: { value: 0.55 },
+      shape: { type: 'circle' },
+      size: { value: { min: 1, max: 3 } },
+    },
+    detectRetina: true,
   };
 
   const navItems = [
@@ -102,52 +224,70 @@ function App() {
 
   const skills = [
     {
-      icon: <Cloud className="w-10 h-10" />,
+      icon: <Cloud className="w-8 h-8" />,
       iconColor: 'text-cyan-400',
       accentClass: 'skill-accent-cyan',
+      accentHex: '#22d3ee',
       title: 'Cloud Platforms',
       desc: 'Provisions multi-region AWS and Azure environments with Terraform — reproducible infrastructure at scale, zero manual clicks.',
       tools: ['AWS', 'Azure', 'Terraform', 'EKS'],
+      badge: 'DEPLOYED',
+      version: 'v3.1',
     },
     {
-      icon: <GitBranch className="w-10 h-10" />,
+      icon: <GitBranch className="w-8 h-8" />,
       iconColor: 'text-purple-400',
       accentClass: 'skill-accent-purple',
+      accentHex: '#c084fc',
       title: 'DevOps & CI/CD',
       desc: 'Ships production-ready code through battle-tested GitLab pipelines with Docker containerization and Kubernetes orchestration.',
       tools: ['GitLab CI/CD', 'Docker', 'Kubernetes', 'Jenkins'],
+      badge: 'RUNNING',
+      version: 'latest',
     },
     {
-      icon: <Boxes className="w-10 h-10" />,
+      icon: <Boxes className="w-8 h-8" />,
       iconColor: 'text-orange-400',
       accentClass: 'skill-accent-orange',
+      accentHex: '#fb923c',
       title: 'Artifact Management',
       desc: 'Manages the full artifact lifecycle — every binary traceable, every release reproducible, zero dependency drift.',
       tools: ['Nexus', 'Artifactory', 'Docker Hub', 'SharePoint'],
+      badge: 'PULLED',
+      version: 'v2.4',
     },
     {
-      icon: <TestTube className="w-10 h-10" />,
+      icon: <TestTube className="w-8 h-8" />,
       iconColor: 'text-green-400',
       accentClass: 'skill-accent-green',
+      accentHex: '#4ade80',
       title: 'Testing & Quality',
       desc: 'Runs parallel nightly test suites across live TPE hardware with X-Ray integration — bugs caught before they reach payment terminals.',
       tools: ['X-Ray', 'Test Automation', 'Integration Testing', 'CI Testing'],
+      badge: 'PASSED',
+      version: 'v1.8',
     },
     {
-      icon: <Terminal className="w-10 h-10" />,
+      icon: <Terminal className="w-8 h-8" />,
       iconColor: 'text-yellow-400',
       accentClass: 'skill-accent-yellow',
+      accentHex: '#facc15',
       title: 'Scripting & OS',
       desc: 'Automates the unglamorous work — Shell, Bash, and Python scripts that run quietly in production and eliminate human error.',
       tools: ['Shell Scripting', 'Linux', 'Bash', 'Python'],
+      badge: 'ACTIVE',
+      version: 'v4.0',
     },
     {
-      icon: <Workflow className="w-10 h-10" />,
+      icon: <Workflow className="w-8 h-8" />,
       iconColor: 'text-pink-400',
       accentClass: 'skill-accent-pink',
+      accentHex: '#f472b6',
       title: 'Methodologies & Tools',
       desc: 'Ships in 2-week sprints, tracks in Jira, reviews in Git — Agile discipline without ceremony overhead.',
       tools: ['Agile', 'Scrum', 'Jira', 'Git'],
+      badge: 'MERGED',
+      version: 'v2.0',
     },
   ];
 
@@ -156,21 +296,22 @@ function App() {
       role: 'DevOps & Automation Engineer',
       company: 'Telnet × Worldline',
       period: 'Sep 2023 — Present',
+      status: 'RUNNING',
       highlight: 'Building the CI/CD backbone behind global payment terminal software.',
       body: (
         <>
-          <p className="text-gray-300 text-sm mb-5 leading-relaxed">
+          <p className="text-slate-300 text-sm mb-5 leading-relaxed">
             Embedded with Worldline — a global leader in electronic payment solutions — designing and maintaining the DevOps infrastructure that underpins TPE software development and release cycles.
           </p>
-          <h4 className="text-xs font-semibold text-blue-400 uppercase tracking-widest mb-3">Key Wins</h4>
-          <ul className="space-y-3 text-sm text-gray-300 mb-5">
+          <h4 className="text-xs font-semibold text-cyan-400 uppercase tracking-widest mb-3">Key Wins</h4>
+          <ul className="space-y-3 text-sm text-slate-300 mb-5">
             {[
               ['Terminal Packager', 'Automated consolidation of 15+ TPE software components into validated packages — reduced packaging time from hours to under 60 seconds, deployed to production.'],
               ['Infrastructure Resilience', 'Built a Docker-based local simulation of payment servers (acquirer + treatment) that kept development unblocked during a major infrastructure migration.'],
               ['Automated TPE Testing', 'Architected a CI/CD-driven testing system with nightly parallel runs across multiple physical payment terminals — results integrated with X-Ray for instant visibility.'],
             ].map(([label, text], i) => (
               <li key={i} className="flex gap-3">
-                <ChevronRight className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                <ChevronRight className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
                 <span><strong className="text-white">{label}:</strong> {text}</span>
               </li>
             ))}
@@ -183,6 +324,7 @@ function App() {
       role: 'DevOps & Cloud Engineer Intern',
       company: 'Spark-it',
       period: 'Feb 2023 — Jun 2023',
+      status: 'SUCCESS',
       highlight: 'Migrated on-premise DevOps infrastructure to AWS end-to-end with Terraform.',
       body: null,
       achievements: [
@@ -198,6 +340,7 @@ function App() {
       role: 'Software Development Intern',
       company: 'LUNAR-TC',
       period: 'Jul 2022 — Aug 2022',
+      status: 'SUCCESS',
       highlight: 'Built a containerized product management microservice with Spring Boot.',
       body: null,
       achievements: [
@@ -213,7 +356,10 @@ function App() {
     {
       title: 'Terminal Packager',
       subtitle: 'Internal Platform Tool · Worldline / Telnet',
-      icon: <Zap className="w-7 h-7" />,
+      env: 'PRODUCTION',
+      envColor: 'text-green-400',
+      envBg: 'bg-green-400/10 border-green-400/20',
+      icon: <Zap className="w-6 h-6" />,
       iconColor: 'text-yellow-400',
       problem: 'Packaging 15+ TPE software components took hours manually — a bottleneck before every release.',
       solution: 'Built an automated tool with minimalist Docker images and GitLab CI/CD pipelines that validates, consolidates, and delivers a production-ready TPE package in a single pipeline run.',
@@ -224,7 +370,10 @@ function App() {
     {
       title: 'TPE Automated Test Infrastructure',
       subtitle: 'CI/CD · Hardware QA · Worldline / Telnet',
-      icon: <TestTube className="w-7 h-7" />,
+      env: 'PRODUCTION',
+      envColor: 'text-green-400',
+      envBg: 'bg-green-400/10 border-green-400/20',
+      icon: <TestTube className="w-6 h-6" />,
       iconColor: 'text-green-400',
       problem: 'Manual testing on physical payment terminals created a 24-hour feedback gap between a commit and test results.',
       solution: 'Architected a GitLab CI/CD pipeline that orchestrates parallel nightly test runs across multiple live TPEs, with centralized X-Ray result reporting.',
@@ -235,7 +384,10 @@ function App() {
     {
       title: 'Azure Infrastructure Automation',
       subtitle: 'IaC · Cloud Migration · Spark-it',
-      icon: <Cloud className="w-7 h-7" />,
+      env: 'STAGING',
+      envColor: 'text-amber-400',
+      envBg: 'bg-amber-400/10 border-amber-400/20',
+      icon: <Cloud className="w-6 h-6" />,
       iconColor: 'text-cyan-400',
       problem: 'Manual Azure provisioning was inconsistent, slow, and impossible to audit across environments.',
       solution: 'Automated the full Azure infrastructure lifecycle with Terraform IaC and GitLab CI — reproducible environments across dev, staging, and production from a single git push.',
@@ -246,7 +398,10 @@ function App() {
     {
       title: 'Jenkins CI/CD Pipeline',
       subtitle: 'Java · Container-First Delivery · Spark-it',
-      icon: <Workflow className="w-7 h-7" />,
+      env: 'STAGING',
+      envColor: 'text-amber-400',
+      envBg: 'bg-amber-400/10 border-amber-400/20',
+      icon: <Workflow className="w-6 h-6" />,
       iconColor: 'text-purple-400',
       problem: 'Java application deployments were manual, inconsistent, and required intervention at every step.',
       solution: 'Built a zero-downtime delivery pipeline — Maven build, Docker image creation, and automated deployment triggered by a git push.',
@@ -256,283 +411,388 @@ function App() {
     },
   ];
 
-  const floatingIcons = [GitBranch, Cloud, Terminal, Boxes, Workflow, Settings];
-
   return (
-    <div className="min-h-screen bg-gray-900 text-white overflow-hidden">
+    <div className="min-h-screen text-white overflow-hidden" style={{ background: '#020c1b' }}>
 
       {/* ── NAV ── */}
       <nav className={`fixed w-full z-50 transition-all duration-500 ${
-        scrolled ? 'bg-gray-900/90 backdrop-blur-md py-4 border-b border-white/5' : 'py-6'
+        scrolled
+          ? 'nav-scrolled py-3'
+          : 'py-5'
       }`}>
-        <div className="container mx-auto px-4 flex justify-between items-center">
-          <a href="#home" className="text-lg font-bold gradient-text flex items-center gap-2 hover-lift">
-            <Terminal className="w-4 h-4" />
-            ghassen.devops
+        <div className="container mx-auto px-6 flex justify-between items-center">
+          <a href="#home" className="flex items-center gap-2 group">
+            <Terminal className="w-4 h-4 text-cyan-400" />
+            <span className="font-mono text-sm text-cyan-400 group-hover:text-cyan-300 transition-colors">
+              ghassen<span className="text-green-400">.devops</span>
+            </span>
           </a>
-          <div className="hidden md:flex gap-6">
+          <div className="hidden md:flex items-center gap-1">
             {navItems.map(item => (
               <a
                 key={item.href}
                 href={item.href}
-                className={`text-sm transition-all relative pb-1 ${
+                className={`nav-link text-xs font-mono px-3 py-1.5 rounded transition-all ${
                   activeSection === item.href.slice(1)
-                    ? 'text-blue-400 active-nav-link'
-                    : 'text-gray-400 hover:text-white'
+                    ? 'nav-link-active'
+                    : ''
                 }`}
               >
+                {activeSection === item.href.slice(1) && <span className="text-green-400 mr-1">&gt;</span>}
                 {item.label}
               </a>
             ))}
           </div>
+          <div className="flex items-center gap-2">
+            <span className="status-online text-[10px] font-mono text-green-400 flex items-center gap-1.5">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              ONLINE
+            </span>
+          </div>
         </div>
       </nav>
 
-      {/* ── HERO ── */}
-      <header id="home" className="min-h-screen flex items-center justify-center relative matrix-bg overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80')] bg-cover bg-fixed bg-center opacity-5" />
+      {/* ── HERO — Control Room ── */}
+      <header id="home" className="min-h-screen flex items-center relative overflow-hidden" style={{ background: '#020c1b' }}>
 
-        {/* Floating background icons */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {floatingIcons.map((Icon, i) => (
-            <div
-              key={i}
-              className="absolute animate-float"
-              style={{
-                left: `${[8, 22, 72, 88, 50, 35][i]}%`,
-                top: `${[18, 72, 12, 62, 88, 45][i]}%`,
-                animationDelay: `${i * 1.1}s`,
-                opacity: 0.05,
-              }}
-            >
-              <Icon style={{ width: `${[80, 56, 96, 48, 64, 40][i]}px`, height: `${[80, 56, 96, 48, 64, 40][i]}px` }} />
-            </div>
-          ))}
-        </div>
+        {/* Particles network */}
+        {particlesReady && (
+          <Particles
+            id="hero-particles"
+            className="absolute inset-0 z-0"
+            style={{ pointerEvents: 'none' }}
+            particlesLoaded={particlesLoaded}
+            options={particlesOptions}
+          />
+        )}
 
-        <div className="container mx-auto px-4 z-10 relative">
-          <div className="max-w-4xl mx-auto text-center">
+        {/* Subtle grid overlay */}
+        <div className="absolute inset-0 cyber-grid z-0 opacity-20" />
 
-            {/* Avatar */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.75 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="mb-8"
-            >
-              <div className="relative inline-block">
-                <div className="absolute inset-0 bg-blue-500 rounded-full blur-2xl opacity-20 animate-pulse" />
-                <img
-                  src={profileImage}
-                  alt="Ghassen Khalfallah"
-                  className="w-36 h-36 rounded-full border-2 border-blue-400/30 object-cover relative z-10"
-                />
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-gray-900 z-20" title="Available" />
-              </div>
-            </motion.div>
+        <div className="container mx-auto px-6 z-10 relative pt-24">
+          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
 
-            {/* Tagline */}
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-blue-400/70 text-xs font-mono tracking-[0.35em] uppercase mb-5"
-            >
-              Infrastructure as Code · Delivery as Art
-            </motion.p>
+            {/* LEFT — Content */}
+            <div className="flex-1 max-w-xl">
+              {/* System online label */}
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="flex items-center gap-2 mb-6"
+              >
+                <span className="inline-block w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                <span className="font-mono text-xs text-green-400 tracking-[0.25em]">&gt; SYSTEM ONLINE</span>
+              </motion.div>
 
-            {/* Name */}
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="text-5xl md:text-7xl font-bold mb-5 gradient-text"
-            >
-              Ghassen Khalfallah
-            </motion.h1>
-
-            {/* Typewriter */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-              className="text-lg md:text-xl text-gray-400 mb-8 h-7 font-light"
-            >
-              <TypeAnimation
-                sequence={[
-                  'DevOps Engineer', 2200,
-                  'Cloud Infrastructure Specialist', 2200,
-                  'CI/CD Architect', 2200,
-                  'Automation Engineer', 2200,
-                ]}
-                repeat={Infinity}
-                className="text-blue-300"
-              />
-            </motion.div>
-
-            {/* Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.75 }}
-              className="flex justify-center gap-10 mb-9"
-            >
-              {[
-                { value: '2+', label: 'Years in Production' },
-                { value: '<60s', label: 'Deploy Cycles' },
-                { value: '3', label: 'Cloud Platforms' },
-              ].map((s, i) => (
-                <div key={i} className="text-center">
-                  <div className="text-2xl font-bold gradient-text">{s.value}</div>
-                  <div className="text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">{s.label}</div>
+              {/* Avatar */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.7, delay: 0.15 }}
+                className="mb-6 flex items-center gap-4"
+              >
+                <div className="relative">
+                  <div className="avatar-glow absolute inset-0 rounded-full" />
+                  <img
+                    src={profileImage}
+                    alt="Ghassen Khalfallah"
+                    className="w-16 h-16 rounded-full border border-cyan-400/30 object-cover relative z-10"
+                  />
+                  <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-400 rounded-full border-2 z-20" style={{ borderColor: '#020c1b' }} />
                 </div>
-              ))}
-            </motion.div>
+                <div className="font-mono text-xs text-slate-400">
+                  <div className="text-cyan-400">ghassen@devops-lab</div>
+                  <div className="text-slate-500">~$ whoami</div>
+                </div>
+              </motion.div>
 
-            {/* Tech badges */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.88 }}
-              className="flex flex-wrap justify-center gap-2.5 mb-11"
-            >
-              {['Docker', 'Kubernetes', 'Terraform', 'GitLab CI/CD', 'AWS'].map((tech, i) => (
-                <span key={i} className="tech-stack-item px-3.5 py-1.5 bg-white/5 border border-white/10 rounded-full text-gray-300 text-sm">
-                  {tech}
-                </span>
-              ))}
-            </motion.div>
-
-            {/* CTAs */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 1 }}
-              className="flex justify-center gap-4"
-            >
-              <a
-                href="#contact"
-                className="group px-8 py-3.5 bg-blue-600 rounded-xl font-semibold flex items-center gap-2 animate-pulse-glow hover:bg-blue-500 transition-colors"
+              {/* Name with glitch */}
+              <motion.h1
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                className="glitch-text text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight"
+                data-text="Ghassen Khalfallah"
               >
-                Work With Me
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </a>
-              <a
-                href="#about"
-                className="px-8 py-3.5 border border-white/10 rounded-xl hover:border-blue-400/40 hover:bg-white/5 transition-all"
-              >
-                My Story
-              </a>
-            </motion.div>
+                Ghassen<br />
+                <span className="gradient-text-devops">Khalfallah</span>
+              </motion.h1>
 
+              {/* TypeAnimation */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.55 }}
+                className="h-7 mb-7"
+              >
+                <TypeAnimation
+                  sequence={[
+                    'DevOps Engineer', 2200,
+                    'Cloud Infrastructure Specialist', 2200,
+                    'CI/CD Architect', 2200,
+                    'Automation Engineer', 2200,
+                  ]}
+                  repeat={Infinity}
+                  className="font-mono text-base text-cyan-300"
+                />
+              </motion.div>
+
+              {/* Stats with CountUp */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.7 }}
+                className="flex gap-6 mb-8"
+              >
+                {[
+                  { end: 2, suffix: '+', label: 'Years Production' },
+                  { end: 500, suffix: '+', label: 'Deploys Shipped' },
+                  { end: 3, suffix: '', label: 'Cloud Platforms' },
+                ].map((stat, i) => (
+                  <div key={i} className="stat-box">
+                    <div className="text-2xl font-bold font-mono text-cyan-400">
+                      <CountUp end={stat.end} suffix={stat.suffix} duration={2.5} delay={1} />
+                    </div>
+                    <div className="text-[9px] text-slate-500 uppercase tracking-widest mt-0.5 font-mono">{stat.label}</div>
+                  </div>
+                ))}
+              </motion.div>
+
+              {/* Tech badges */}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.85 }}
+                className="flex flex-wrap gap-2 mb-9"
+              >
+                {['Docker', 'Kubernetes', 'Terraform', 'GitLab CI/CD', 'AWS', 'Azure'].map((tech, i) => (
+                  <span key={i} className="tech-badge font-mono text-xs">
+                    {tech}
+                  </span>
+                ))}
+              </motion.div>
+
+              {/* CTAs */}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1 }}
+                className="flex gap-3 flex-wrap"
+              >
+                <a href="#contact" className="cta-primary group flex items-center gap-2">
+                  <Send className="w-3.5 h-3.5" />
+                  Initiate Contact
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </a>
+                <a href="#about" className="cta-secondary flex items-center gap-2">
+                  <Activity className="w-3.5 h-3.5" />
+                  View Status
+                </a>
+              </motion.div>
+            </div>
+
+            {/* RIGHT — Terminal Window */}
+            <div className="flex-1 max-w-lg w-full">
+              <HeroTerminal />
+            </div>
           </div>
         </div>
+
+        {/* Bottom fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 z-10" style={{ background: 'linear-gradient(to bottom, transparent, #020c1b)' }} />
       </header>
 
-      {/* ── ABOUT ── */}
-      <section id="about" className="py-32 relative overflow-hidden">
+      {/* ── ABOUT — Service Status ── */}
+      <section id="about" className="py-28 relative overflow-hidden">
         <div className="absolute inset-0 cyber-grid opacity-10" />
-        <div className="container mx-auto px-4 relative">
-          <motion.h2
-            initial={{ opacity: 0, x: -24 }}
-            whileInView={{ opacity: 1, x: 0 }}
+        <div className="container mx-auto px-6 relative">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-4xl md:text-5xl font-bold text-center mb-20 gradient-text"
+            className="text-center mb-16"
           >
-            The Engineer Behind the Pipeline
-          </motion.h2>
-          <div className="max-w-4xl mx-auto glass-effect p-10 rounded-2xl">
+            <div className="section-label mb-3">// ABOUT</div>
+            <h2 className="text-3xl md:text-4xl font-bold gradient-text-devops">The Engineer Behind the Pipeline</h2>
+          </motion.div>
+
+          <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8">
+            {/* Left — Content */}
             <motion.div
               variants={staggerContainer}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
-              className="space-y-10"
+              className="lg:col-span-3 space-y-7"
             >
               {[
                 {
-                  icon: <Rocket className="w-7 h-7 text-blue-400 flex-shrink-0 mt-1" />,
+                  icon: <Rocket className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />,
                   label: 'Mission',
                   text: 'When payment terminals ship with bugs, global transactions fail. I build the infrastructure that prevents that — automated pipelines, containerized environments, and testing systems that catch problems before they reach production. Currently embedded at Worldline through Telnet, working on the DevOps backbone of critical TPE software.',
                 },
                 {
-                  icon: <Coffee className="w-7 h-7 text-blue-400 flex-shrink-0 mt-1" />,
+                  icon: <Coffee className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />,
                   label: 'Philosophy',
-                  text: 'Every manual process is a future incident. Every untracked deployment is a liability. I don\'t automate to be lazy — I automate to eliminate the gap between code and confidence. Infrastructure should be invisible, predictable, and boring in the best possible way.',
+                  text: "Every manual process is a future incident. Every untracked deployment is a liability. I don't automate to be lazy — I automate to eliminate the gap between code and confidence. Infrastructure should be invisible, predictable, and boring in the best possible way.",
                 },
               ].map(({ icon, label, text }, i) => (
-                <motion.div key={i} variants={fadeUp} className="flex gap-6 items-start">
-                  {icon}
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2 text-glow">{label}</h3>
-                    <p className="text-gray-300 leading-relaxed text-sm">{text}</p>
+                <motion.div key={i} variants={fadeUp} className="glass-devops p-6 rounded-xl">
+                  <div className="flex items-start gap-3 mb-2">
+                    {icon}
+                    <h3 className="font-semibold text-white font-mono text-sm">{label.toUpperCase()}</h3>
                   </div>
+                  <p className="text-slate-300 leading-relaxed text-sm pl-8">{text}</p>
                 </motion.div>
               ))}
 
-              <motion.div variants={fadeUp} className="flex gap-6 items-start">
-                <Award className="w-7 h-7 text-blue-400 flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="text-lg font-semibold mb-3 text-glow">Key Achievements</h3>
-                  <ul className="space-y-2.5 text-sm text-gray-300">
-                    {[
-                      ['Terminal Packager', 'reduced packaging time from hours to under 60 seconds, deployed to production'],
-                      ['Docker-simulated payment stack', 'zero development downtime during major infrastructure migration'],
-                      ['Automated TPE test infrastructure', 'nightly parallel CI runs across physical terminals with X-Ray reporting'],
-                      ['AWS IaC with Terraform', '50% faster environment provisioning at Spark-it'],
-                    ].map(([label, text], i) => (
-                      <li key={i} className="flex gap-2.5">
-                        <ChevronRight className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                        <span>
-                          <strong className="text-white">{label}</strong> → {text}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+              <motion.div variants={fadeUp} className="glass-devops p-6 rounded-xl">
+                <div className="flex items-start gap-3 mb-3">
+                  <Award className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+                  <h3 className="font-semibold text-white font-mono text-sm">KEY ACHIEVEMENTS</h3>
                 </div>
+                <ul className="space-y-2.5 text-sm text-slate-300 pl-8">
+                  {[
+                    ['Terminal Packager', 'reduced packaging time from hours to under 60 seconds, deployed to production'],
+                    ['Docker-simulated payment stack', 'zero development downtime during major infrastructure migration'],
+                    ['Automated TPE test infrastructure', 'nightly parallel CI runs across physical terminals with X-Ray reporting'],
+                    ['AWS IaC with Terraform', '50% faster environment provisioning at Spark-it'],
+                  ].map(([label, text], i) => (
+                    <li key={i} className="flex gap-2.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-green-400 flex-shrink-0 mt-0.5" />
+                      <span>
+                        <strong className="text-white">{label}</strong>
+                        <span className="text-slate-400"> → {text}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </motion.div>
+            </motion.div>
+
+            {/* Right — Status Dashboard */}
+            <motion.div
+              initial={{ opacity: 0, x: 24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="lg:col-span-2"
+            >
+              <div className="status-card rounded-xl overflow-hidden h-full">
+                <div className="status-card-header px-5 py-3 flex items-center gap-2">
+                  <Server className="w-3.5 h-3.5 text-cyan-400" />
+                  <span className="font-mono text-xs text-cyan-400 tracking-widest">ENGINEER STATUS</span>
+                </div>
+                <div className="p-5 space-y-4 font-mono text-sm">
+                  <div className="flex items-center gap-3 pb-4 border-b border-cyan-400/10">
+                    <span className="inline-block w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
+                    <div>
+                      <div className="text-white font-semibold">Ghassen Khalfallah</div>
+                      <div className="text-green-400 text-xs">● ONLINE — Available for work</div>
+                    </div>
+                  </div>
+
+                  {[
+                    { key: 'uptime', value: '2+ years' },
+                    { key: 'deploys', value: '500+' },
+                    { key: 'pipelines', value: '50+' },
+                    { key: 'availability', value: '99.9%' },
+                    { key: 'incidents', value: '0 P0' },
+                  ].map(({ key, value }) => (
+                    <div key={key} className="flex justify-between items-center">
+                      <span className="text-slate-500 text-xs">{key}:</span>
+                      <span className="text-cyan-300 text-xs">{value}</span>
+                    </div>
+                  ))}
+
+                  <div className="pt-3 border-t border-cyan-400/10">
+                    <div className="text-slate-500 text-xs mb-3">specialties:</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {['CI/CD', 'Cloud', 'Containers', 'IaC', 'Automation', 'Linux'].map(s => (
+                        <span key={s} className="specialty-tag text-[10px]">{s}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-cyan-400/10 space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-slate-500 text-xs">location:</span>
+                      <span className="text-slate-300 text-xs">Tunisia 🇹🇳</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500 text-xs">company:</span>
+                      <span className="text-slate-300 text-xs">Telnet × Worldline</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500 text-xs">focus:</span>
+                      <span className="text-green-400 text-xs">Payment TPE Software</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* ── SKILLS ── */}
-      <section id="skills" className="py-32 relative overflow-hidden bg-gray-900/50">
+      {/* ── SKILLS — Container Registry ── */}
+      <section id="skills" className="py-28 relative overflow-hidden" style={{ background: 'rgba(2,12,27,0.95)' }}>
         <div className="absolute inset-0 cyber-grid opacity-10" />
-        <div className="container mx-auto px-4 relative">
-          <motion.h2
-            initial={{ opacity: 0, x: -24 }}
-            whileInView={{ opacity: 1, x: 0 }}
+        <div className="container mx-auto px-6 relative">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-4xl md:text-5xl font-bold text-center mb-20 gradient-text"
+            className="text-center mb-16"
           >
-            Technical Arsenal
-          </motion.h2>
+            <div className="section-label mb-3">// CONTAINER REGISTRY</div>
+            <h2 className="text-3xl md:text-4xl font-bold gradient-text-devops">Technical Arsenal</h2>
+          </motion.div>
+
           <motion.div
             variants={staggerContainer}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             {skills.map((skill, index) => (
               <motion.div
                 key={index}
                 variants={fadeUp}
                 custom={index}
-                className={`skill-card glass-effect p-8 rounded-2xl ${skill.accentClass}`}
+                className={`skill-card glass-devops rounded-xl overflow-hidden ${skill.accentClass}`}
               >
-                <div className={`${skill.iconColor} mb-5`}>{skill.icon}</div>
-                <h3 className="text-lg font-semibold mb-2">{skill.title}</h3>
-                <p className="text-gray-400 mb-6 text-sm leading-relaxed">{skill.desc}</p>
-                <div className="flex flex-wrap gap-2">
-                  {skill.tools.map((tool, i) => (
-                    <span key={i} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-gray-300 text-xs">
-                      {tool}
-                    </span>
-                  ))}
+                {/* Card header bar */}
+                <div className="skill-card-header flex items-center justify-between px-4 py-2.5" style={{ borderBottom: `1px solid rgba(255,255,255,0.06)` }}>
+                  <div className="flex items-center gap-2">
+                    <span className={`${skill.iconColor}`}>{skill.icon}</span>
+                    <span className="font-mono text-xs text-slate-300 font-semibold">{skill.title}</span>
+                  </div>
+                  <span className={`skill-badge text-[9px] font-mono font-bold ${
+                    skill.badge === 'RUNNING' ? 'badge-running' :
+                    skill.badge === 'DEPLOYED' ? 'badge-deployed' :
+                    'badge-default'
+                  }`}>
+                    {skill.badge}
+                  </span>
+                </div>
+
+                {/* Card body */}
+                <div className="px-4 py-4">
+                  <p className="text-slate-400 text-xs leading-relaxed mb-4">{skill.desc}</p>
+
+                  {/* Docker-style tags */}
+                  <div className="flex flex-wrap gap-1.5">
+                    <span className="docker-tag docker-tag-latest">latest</span>
+                    <span className="docker-tag docker-tag-version">{skill.version}</span>
+                    {skill.tools.map((tool, i) => (
+                      <span key={i} className="docker-tag">{tool}</span>
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -540,123 +800,175 @@ function App() {
         </div>
       </section>
 
-      {/* ── EXPERIENCE ── */}
-      <section id="experience" className="py-32 relative">
+      {/* ── EXPERIENCE — CI/CD Pipeline ── */}
+      <section id="experience" className="py-28 relative">
         <div className="absolute inset-0 cyber-grid opacity-10" />
-        <div className="container mx-auto px-4 relative">
-          <motion.h2
-            initial={{ opacity: 0, x: -24 }}
-            whileInView={{ opacity: 1, x: 0 }}
+        <div className="container mx-auto px-6 relative">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-4xl md:text-5xl font-bold text-center mb-20 gradient-text"
+            className="text-center mb-16"
           >
-            Professional Journey
-          </motion.h2>
-          <div className="max-w-4xl mx-auto space-y-7">
-            {experiences.map((exp, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: -24 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="glass-effect p-8 rounded-2xl experience-line"
-              >
-                <div className="flex flex-wrap gap-2 items-baseline mb-1">
-                  <h3 className="text-xl font-semibold gradient-text">{exp.role}</h3>
-                  <span className="text-blue-400 text-sm">@ {exp.company}</span>
-                </div>
-                <p className="text-gray-500 text-xs font-mono mb-3">{exp.period}</p>
-                <p className="text-gray-400 text-sm italic border-l-2 border-blue-400/30 pl-4 mb-5">{exp.highlight}</p>
+            <div className="section-label mb-3">// CI/CD PIPELINE</div>
+            <h2 className="text-3xl md:text-4xl font-bold gradient-text-devops">Professional Journey</h2>
+          </motion.div>
 
-                {exp.body}
+          <div className="max-w-3xl mx-auto">
+            {/* Pipeline track */}
+            <div className="relative pl-14">
+              <div className="pipeline-track" />
 
-                {'achievements' in exp && exp.achievements && (
-                  <ul className="space-y-2 mb-5">
-                    {exp.achievements.map((a, i) => (
-                      <li key={i} className="text-gray-300 text-sm flex gap-2">
-                        <ChevronRight className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                        {a}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+              <div className="space-y-8">
+                {experiences.map((exp, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -30 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.65, delay: index * 0.12 }}
+                    className="relative"
+                  >
+                    {/* Stage node centered on track */}
+                    <div className="pipeline-node-wrap">
+                      <div className="pipeline-node">
+                        <span className="font-mono text-[8px] text-cyan-400">{index + 1}</span>
+                      </div>
+                    </div>
 
-                {exp.stack && (
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {exp.stack.map((tech, i) => (
-                      <span key={i} className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-300 text-xs">
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </motion.div>
-            ))}
+                    {/* Stage card */}
+                    <div className="glass-devops rounded-xl overflow-hidden">
+                      {/* Stage header */}
+                      <div className="flex items-center justify-between px-5 py-3 border-b border-white/5">
+                        <div className="flex items-center gap-3">
+                          <span className="font-mono text-[10px] text-slate-500 tracking-widest">STAGE {index + 1}</span>
+                          <span className="text-slate-600">·</span>
+                          <span className="font-mono text-xs text-slate-400">{exp.period}</span>
+                        </div>
+                        <span className={`pipeline-status ${exp.status === 'RUNNING' ? 'status-running' : 'status-success'}`}>
+                          {exp.status === 'RUNNING' ? (
+                            <><Play className="w-2.5 h-2.5" /> RUNNING</>
+                          ) : (
+                            <><CheckCircle2 className="w-2.5 h-2.5" /> SUCCESS</>
+                          )}
+                        </span>
+                      </div>
+
+                      {/* Stage body */}
+                      <div className="p-5">
+                        <div className="flex flex-wrap gap-2 items-baseline mb-1">
+                          <h3 className="text-base font-bold text-white">{exp.role}</h3>
+                          <span className="text-cyan-400 font-mono text-sm">@ {exp.company}</span>
+                        </div>
+                        <p className="text-slate-400 text-xs italic border-l-2 border-cyan-400/30 pl-3 mb-4">{exp.highlight}</p>
+
+                        {exp.body}
+
+                        {'achievements' in exp && exp.achievements && (
+                          <ul className="space-y-2 mb-4">
+                            {exp.achievements.map((a, i) => (
+                              <li key={i} className="text-slate-300 text-sm flex gap-2">
+                                <ChevronRight className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0 mt-0.5" />
+                                {a}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+
+                        {exp.stack && (
+                          <div className="flex flex-wrap gap-1.5 pt-2">
+                            {exp.stack.map((tech, i) => (
+                              <span key={i} className="px-2 py-0.5 bg-cyan-500/10 border border-cyan-500/20 rounded font-mono text-cyan-300 text-[10px]">
+                                {tech}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── PROJECTS ── */}
-      <section id="projects" className="py-32 bg-gray-900/50 relative">
+      {/* ── PROJECTS — Deployed Services ── */}
+      <section id="projects" className="py-28 relative" style={{ background: 'rgba(2,12,27,0.95)' }}>
         <div className="absolute inset-0 cyber-grid opacity-10" />
-        <div className="container mx-auto px-4 relative">
-          <motion.h2
-            initial={{ opacity: 0, x: -24 }}
-            whileInView={{ opacity: 1, x: 0 }}
+        <div className="container mx-auto px-6 relative">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-4xl md:text-5xl font-bold text-center mb-20 gradient-text"
+            className="text-center mb-16"
           >
-            Featured Projects
-          </motion.h2>
+            <div className="section-label mb-3">// DEPLOYED SERVICES</div>
+            <h2 className="text-3xl md:text-4xl font-bold gradient-text-devops">Featured Projects</h2>
+          </motion.div>
+
           <motion.div
             variants={staggerContainer}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-7 max-w-5xl mx-auto"
+            className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto"
           >
             {projects.map((project, index) => (
               <motion.div
                 key={index}
                 variants={fadeUp}
                 custom={index}
-                className="project-card glass-effect p-8 rounded-2xl flex flex-col"
+                className="project-deploy-card glass-devops rounded-xl overflow-hidden flex flex-col"
               >
-                <div className="project-content flex flex-col flex-1">
-                  <div className={`${project.iconColor} mb-4`}>{project.icon}</div>
-                  <h3 className="text-lg font-semibold mb-0.5">{project.title}</h3>
-                  <p className="text-[11px] text-gray-500 font-mono mb-5">{project.subtitle}</p>
+                {/* Deployment status bar */}
+                <div className={`flex items-center justify-between px-4 py-2.5 border-b ${project.envBg}`}>
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-block w-2 h-2 rounded-full animate-pulse ${
+                      project.env === 'PRODUCTION' ? 'bg-green-400' : 'bg-amber-400'
+                    }`} />
+                    <span className={`font-mono text-[10px] font-bold tracking-widest ${project.envColor}`}>
+                      ● {project.env}
+                    </span>
+                  </div>
+                  <span className={`font-mono text-[10px] ${project.iconColor}`}>{project.icon}</span>
+                </div>
 
-                  <div className="space-y-2.5 mb-6 flex-1">
-                    <p className="text-sm text-gray-400">
-                      <span className="text-red-400/70 text-[10px] font-semibold uppercase tracking-wider">Problem · </span>
+                {/* Card content */}
+                <div className="p-5 flex flex-col flex-1">
+                  <h3 className="font-bold text-white text-base mb-0.5">{project.title}</h3>
+                  <p className="font-mono text-[10px] text-slate-500 mb-4">{project.subtitle}</p>
+
+                  <div className="space-y-2.5 mb-5 flex-1">
+                    <p className="text-xs text-slate-400">
+                      <span className="text-red-400/80 font-mono text-[9px] uppercase tracking-wider font-bold">PROBLEM · </span>
                       {project.problem}
                     </p>
-                    <p className="text-sm text-gray-300">
-                      <span className="text-blue-400/70 text-[10px] font-semibold uppercase tracking-wider">Solution · </span>
+                    <p className="text-xs text-slate-300">
+                      <span className="text-cyan-400/80 font-mono text-[9px] uppercase tracking-wider font-bold">SOLUTION · </span>
                       {project.solution}
                     </p>
-                    <p className="text-sm text-white font-medium">
-                      <span className="text-green-400/70 text-[10px] font-semibold uppercase tracking-wider">Outcome · </span>
+                    <p className="text-xs text-white font-medium">
+                      <span className="text-green-400/80 font-mono text-[9px] uppercase tracking-wider font-bold">OUTCOME · </span>
                       {project.outcome}
                     </p>
                   </div>
 
+                  {/* Tags */}
                   <div className="flex flex-wrap gap-1.5 mb-4">
                     {project.tags.map((tag, i) => (
-                      <span key={i} className="px-2.5 py-1 bg-white/5 border border-white/10 rounded-full text-gray-300 text-xs">
-                        {tag}
-                      </span>
+                      <span key={i} className="docker-tag text-[10px]">{tag}</span>
                     ))}
                   </div>
 
+                  {/* Metrics mini dashboard */}
                   <div className="grid grid-cols-3 gap-2">
                     {project.metrics.map((metric, i) => (
-                      <div key={i} className="text-center py-2 px-1 bg-blue-500/10 border border-blue-500/10 rounded-lg">
-                        <span className="text-[11px] text-blue-300 leading-tight block">{metric}</span>
+                      <div key={i} className="metric-widget text-center py-2 px-1 rounded">
+                        <span className="text-[10px] text-cyan-300 leading-tight block font-mono">{metric}</span>
                       </div>
                     ))}
                   </div>
@@ -668,23 +980,25 @@ function App() {
       </section>
 
       {/* ── EDUCATION ── */}
-      <section id="education" className="py-32 relative">
+      <section id="education" className="py-28 relative">
         <div className="absolute inset-0 cyber-grid opacity-10" />
-        <div className="container mx-auto px-4 relative">
-          <motion.h2
-            initial={{ opacity: 0, x: -24 }}
-            whileInView={{ opacity: 1, x: 0 }}
+        <div className="container mx-auto px-6 relative">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-4xl md:text-5xl font-bold text-center mb-20 gradient-text"
+            className="text-center mb-16"
           >
-            Education
-          </motion.h2>
-          <div className="max-w-4xl mx-auto space-y-5">
+            <div className="section-label mb-3">// SYSTEM LOG</div>
+            <h2 className="text-3xl md:text-4xl font-bold gradient-text-devops">Education</h2>
+          </motion.div>
+
+          <div className="max-w-3xl mx-auto space-y-4">
             {[
-              { degree: 'Engineering Cycle — Computer Engineering', institution: 'National Engineering School of Sfax (ENIS)', icon: <BookOpen className="w-6 h-6" /> },
-              { degree: 'Preparatory Cycle — Physics & Technology', institution: 'Preparatory Institute for Engineering Studies of Monastir (IPEIM)', icon: <Award className="w-6 h-6" /> },
-              { degree: 'Technical Baccalaureate', institution: 'Eljem High School', icon: <BookOpen className="w-6 h-6" /> },
+              { degree: 'Engineering Cycle — Computer Engineering', institution: 'National Engineering School of Sfax (ENIS)', icon: <BookOpen className="w-5 h-5" /> },
+              { degree: 'Preparatory Cycle — Physics & Technology', institution: 'Preparatory Institute for Engineering Studies of Monastir (IPEIM)', icon: <Award className="w-5 h-5" /> },
+              { degree: 'Technical Baccalaureate', institution: 'Eljem High School', icon: <BookOpen className="w-5 h-5" /> },
             ].map((edu, index) => (
               <motion.div
                 key={index}
@@ -692,50 +1006,64 @@ function App() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="glass-effect p-6 rounded-2xl flex items-start gap-5"
+                className="glass-devops p-5 rounded-xl flex items-center gap-4"
               >
-                <div className="text-blue-400 mt-0.5">{edu.icon}</div>
+                <div className="text-cyan-400 flex-shrink-0">{edu.icon}</div>
                 <div>
-                  <h3 className="text-base font-semibold mb-0.5">{edu.degree}</h3>
-                  <p className="text-gray-400 text-sm">{edu.institution}</p>
+                  <h3 className="text-sm font-semibold text-white mb-0.5">{edu.degree}</h3>
+                  <p className="text-slate-400 text-xs font-mono">{edu.institution}</p>
                 </div>
+                <Package className="w-4 h-4 text-slate-600 ml-auto flex-shrink-0" />
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── CONTACT ── */}
-      <section id="contact" className="py-32 relative">
-        <Toaster position="top-right" />
+      {/* ── CONTACT — Incoming Request ── */}
+      <section id="contact" className="py-28 relative" style={{ background: 'rgba(2,12,27,0.98)' }}>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: '#0d1929',
+              color: '#e2e8f0',
+              border: '1px solid rgba(0,212,255,0.2)',
+              fontFamily: 'monospace',
+              fontSize: '13px',
+            },
+          }}
+        />
         <div className="absolute inset-0 cyber-grid opacity-10" />
-        <div className="container mx-auto px-4 relative">
+        <div className="container mx-auto px-6 relative">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="max-w-lg mx-auto"
+            className="max-w-xl mx-auto"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-center mb-3 gradient-text">
-              Open for Opportunities
-            </h2>
-            <p className="text-gray-400 text-center mb-10 text-sm leading-relaxed">
-              Whether it's a DevOps challenge, a cloud migration, or just to talk infrastructure —<br />
-              my inbox is a well-monitored pipeline.
-            </p>
+            <div className="text-center mb-10">
+              <div className="section-label mb-3">// INCOMING REQUEST</div>
+              <h2 className="text-3xl md:text-4xl font-bold gradient-text-devops mb-3">Open for Opportunities</h2>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Whether it's a DevOps challenge, a cloud migration, or just to talk infrastructure —<br />
+                my inbox is a well-monitored pipeline.
+              </p>
+            </div>
 
-            <div className="flex justify-center gap-4 mb-10">
+            {/* Social links */}
+            <div className="flex justify-center gap-3 mb-8">
               {[
-                { href: 'https://github.com/gassenkalfallah', icon: <Github className="w-5 h-5" />, label: 'GitHub' },
-                { href: 'https://www.linkedin.com/in/ghassenkhalfallah/', icon: <Linkedin className="w-5 h-5" />, label: 'LinkedIn' },
+                { href: 'https://github.com/gassenkalfallah', icon: <Github className="w-4 h-4" />, label: 'GitHub' },
+                { href: 'https://www.linkedin.com/in/ghassenkhalfallah/', icon: <Linkedin className="w-4 h-4" />, label: 'LinkedIn' },
               ].map(({ href, icon, label }) => (
                 <a
                   key={label}
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-5 py-2.5 glass-effect rounded-xl text-gray-400 hover:text-white text-sm transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 glass-devops rounded-lg text-slate-400 hover:text-cyan-400 font-mono text-xs transition-colors"
                 >
                   {icon}
                   {label}
@@ -743,41 +1071,81 @@ function App() {
               ))}
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="glass-effect rounded-xl overflow-hidden">
-                <input
-                  type="email" name="email" value={formData.email} onChange={handleChange}
-                  placeholder="your@email.com" required
-                  className="w-full px-6 py-4 bg-transparent outline-none text-white placeholder-gray-600 text-sm"
-                />
+            {/* API form */}
+            <div className="glass-devops rounded-xl overflow-hidden">
+              {/* Request header */}
+              <div className="px-5 py-3 border-b border-cyan-400/10 flex items-center justify-between">
+                <span className="font-mono text-xs text-cyan-400">POST /api/contact HTTP/1.1</span>
+                <span className="font-mono text-[10px] text-slate-500">Content-Type: application/json</span>
               </div>
-              <div className="glass-effect rounded-xl overflow-hidden">
-                <textarea
-                  name="message" value={formData.message} onChange={handleChange}
-                  placeholder="Tell me about your project, team, or challenge..."
-                  required rows={5}
-                  className="w-full px-6 py-4 bg-transparent outline-none text-white placeholder-gray-600 resize-none text-sm"
-                />
-              </div>
-              <button
-                type="submit" disabled={isSubmitting}
-                className={`w-full bg-gradient-to-r from-blue-600 to-cyan-500 px-8 py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${
-                  isSubmitting ? 'opacity-60 cursor-not-allowed' : 'hover:from-blue-500 hover:to-cyan-400 hover:scale-[1.02]'
-                }`}
-              >
-                {isSubmitting ? 'Sending...' : (<><span>Send Message</span><ArrowRight className="w-4 h-4" /></>)}
-              </button>
-            </form>
+
+              <form onSubmit={handleSubmit} className="p-5 space-y-4">
+                <div>
+                  <label className="block font-mono text-[10px] text-slate-500 mb-1.5 tracking-widest">
+                    "from_email"
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="your@email.com"
+                    required
+                    className="api-input w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block font-mono text-[10px] text-slate-500 mb-1.5 tracking-widest">
+                    "message"
+                  </label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    placeholder="Tell me about your project, team, or challenge..."
+                    required
+                    rows={5}
+                    className="api-input w-full resize-none"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`api-submit w-full flex items-center justify-center gap-2 font-mono ${
+                    isSubmitting ? 'opacity-60 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="inline-block w-3 h-3 border border-cyan-400/40 border-t-cyan-400 rounded-full animate-spin" />
+                      Sending Request...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-3.5 h-3.5" />
+                      Send Request →
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
           </motion.div>
         </div>
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="py-8 border-t border-white/5">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-xs text-gray-600 font-mono">
-            © 2025 · Ghassen Khalfallah · DevOps Engineer · Automating the path from commit to production
+      <footer className="py-7 border-t" style={{ borderColor: 'rgba(0,212,255,0.08)' }}>
+        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-3">
+          <p className="text-[11px] text-slate-600 font-mono">
+            © 2025 · Ghassen Khalfallah · DevOps Engineer
           </p>
+          <p className="text-[11px] text-slate-600 font-mono">
+            Automating the path from commit to production
+          </p>
+          <div className="flex items-center gap-1.5">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+            <span className="text-[11px] text-green-400/60 font-mono">ALL SYSTEMS OPERATIONAL</span>
+          </div>
         </div>
       </footer>
 

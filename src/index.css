@@ -2,19 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Keyframes ── */
+/* ──────────────────────────────────────────────────────────────
+   ROOT & BASE
+   ────────────────────────────────────────────────────────────── */
 
-@keyframes float {
-  0%   { transform: translateY(0px) rotateY(0deg); }
-  50%  { transform: translateY(-20px) rotateY(180deg); }
-  100% { transform: translateY(0px) rotateY(360deg); }
+:root {
+  --bg-base:      #020c1b;
+  --cyan:         #00d4ff;
+  --green:        #00ff9d;
+  --purple:       #7928ca;
+  --amber:        #f59e0b;
+  --text-muted:   #94a3b8;
+  --text-base:    #e2e8f0;
 }
 
-@keyframes pulse-glow {
-  0%   { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
-  70%  { box-shadow: 0 0 0 20px rgba(59, 130, 246, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-base);
+  color: var(--text-base);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
+
+
+/* ──────────────────────────────────────────────────────────────
+   KEYFRAMES
+   ────────────────────────────────────────────────────────────── */
 
 @keyframes gradient-shift {
   0%   { background-position: 0% 50%; }
@@ -22,16 +36,35 @@
   100% { background-position: 0% 50%; }
 }
 
-@keyframes tilt {
-  0%   { transform: perspective(1000px) rotateX(0deg) rotateY(0deg); }
-  25%  { transform: perspective(1000px) rotateX(2deg) rotateY(-2deg); }
-  75%  { transform: perspective(1000px) rotateX(-2deg) rotateY(2deg); }
-  100% { transform: perspective(1000px) rotateX(0deg) rotateY(0deg); }
+@keyframes pulse-glow {
+  0%   { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.4); }
+  70%  { box-shadow: 0 0 0 16px rgba(0, 212, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0); }
 }
 
-@keyframes matrix-bg {
-  0%   { background-position: 0% 0%; }
-  100% { background-position: 0% 100%; }
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes scanline {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes pipeline-flow {
+  0%   { background-position: 0 0; }
+  100% { background-position: 0 40px; }
+}
+
+@keyframes node-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.6), 0 0 12px rgba(0, 212, 255, 0.3); }
+  50%       { box-shadow: 0 0 0 6px rgba(0, 212, 255, 0), 0 0 20px rgba(0, 212, 255, 0.5); }
+}
+
+@keyframes status-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
 }
 
 @keyframes nav-underline {
@@ -39,24 +72,42 @@
   to   { transform: scaleX(1); }
 }
 
-/* ── Utility animations ── */
-
-.animate-float {
-  animation: float 8s ease-in-out infinite;
-  transform-style: preserve-3d;
+/* Glitch animation for name */
+@keyframes glitch-clip-1 {
+  0%, 100% { clip-path: inset(0 0 100% 0); transform: translate(0); }
+  20%       { clip-path: inset(20% 0 60% 0); transform: translate(-3px, 2px); }
+  40%       { clip-path: inset(60% 0 20% 0); transform: translate(3px, -2px); }
+  60%       { clip-path: inset(40% 0 40% 0); transform: translate(-2px, 1px); }
+  80%       { clip-path: inset(80% 0 5% 0); transform: translate(2px, -1px); }
 }
 
-.animate-pulse-glow {
-  animation: pulse-glow 2s infinite;
+@keyframes glitch-clip-2 {
+  0%, 100% { clip-path: inset(50% 0 30% 0); transform: translate(0); }
+  25%       { clip-path: inset(10% 0 80% 0); transform: translate(3px, -1px); }
+  50%       { clip-path: inset(70% 0 10% 0); transform: translate(-2px, 2px); }
+  75%       { clip-path: inset(30% 0 60% 0); transform: translate(2px, -2px); }
 }
 
-.animate-tilt {
-  animation: tilt 10s infinite ease-in-out;
-  transform-style: preserve-3d;
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
-/* ── Gradient text ── */
 
+/* ──────────────────────────────────────────────────────────────
+   GRADIENT TEXT
+   ────────────────────────────────────────────────────────────── */
+
+.gradient-text-devops {
+  background: linear-gradient(120deg, #00d4ff, #00ff9d, #7928ca, #00d4ff);
+  background-size: 300% 300%;
+  animation: gradient-shift 6s ease infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Legacy alias (keep for any remnant usage) */
 .gradient-text {
   background: linear-gradient(120deg, #00ff87, #60efff, #0061ff, #60efff, #00ff87);
   background-size: 300% 300%;
@@ -66,120 +117,569 @@
   color: transparent;
 }
 
-/* ── Hero background ── */
 
-.matrix-bg {
-  background: linear-gradient(180deg,
-    rgba(0, 20, 50, 0.95),
-    rgba(0, 10, 30, 0.85)
-  );
-  background-size: 100% 200%;
-  animation: matrix-bg 20s linear infinite;
+/* ──────────────────────────────────────────────────────────────
+   GLITCH TEXT
+   ────────────────────────────────────────────────────────────── */
+
+.glitch-text {
+  position: relative;
+  color: #e2e8f0;
 }
 
-/* ── Cyber grid ── */
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.glitch-text::before {
+  color: #00d4ff;
+  animation: glitch-clip-1 4s infinite steps(1);
+  opacity: 0.7;
+}
+
+.glitch-text::after {
+  color: #00ff9d;
+  animation: glitch-clip-2 4s infinite steps(1) 0.5s;
+  opacity: 0.5;
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+   CYBER GRID BACKGROUND
+   ────────────────────────────────────────────────────────────── */
 
 .cyber-grid {
   background-image:
-    linear-gradient(rgba(16, 185, 129, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(16, 185, 129, 0.07) 1px, transparent 1px);
-  background-size: 28px 28px;
+    linear-gradient(rgba(0, 212, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
-/* ── Glass card ── */
 
-.glass-effect {
-  backdrop-filter: blur(14px);
-  background: rgba(13, 20, 36, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* ──────────────────────────────────────────────────────────────
+   NAVIGATION
+   ────────────────────────────────────────────────────────────── */
+
+.nav-scrolled {
+  background: rgba(2, 12, 27, 0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(0, 212, 255, 0.08);
 }
 
-.glass-effect:hover {
-  transform: translateZ(12px);
+.nav-link {
+  font-mono: monospace;
+  color: #64748b;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #00d4ff;
+}
+
+.nav-link-active {
+  color: #00d4ff;
+  background: rgba(0, 212, 255, 0.06);
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+   HERO — AVATAR GLOW
+   ────────────────────────────────────────────────────────────── */
+
+.avatar-glow {
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.3) 0%, transparent 70%);
+  filter: blur(10px);
+  transform: scale(1.3);
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+   HERO — TERMINAL WINDOW
+   ────────────────────────────────────────────────────────────── */
+
+.terminal-window {
+  background: #0a1628;
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  border-radius: 12px;
+  overflow: hidden;
   box-shadow:
-    0 0 24px rgba(59, 130, 246, 0.2),
-    0 0 60px rgba(59, 130, 246, 0.06);
+    0 0 0 1px rgba(0, 212, 255, 0.05),
+    0 24px 80px rgba(0, 0, 0, 0.6),
+    0 0 60px rgba(0, 212, 255, 0.06);
 }
 
-/* ── Skill cards — 3D tilt ── */
+.terminal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #061020;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.08);
+}
+
+.traffic-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  opacity: 0.85;
+}
+
+.terminal-title {
+  font-family: 'Fira Code', 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 11px;
+  color: #94a3b8;
+  letter-spacing: 0.03em;
+}
+
+.terminal-body {
+  padding: 20px;
+  min-height: 240px;
+  font-family: 'Fira Code', 'JetBrains Mono', 'Courier New', monospace;
+  position: relative;
+  overflow: hidden;
+}
+
+.terminal-cmd {
+  color: #00ff9d;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.terminal-result {
+  color: rgba(0, 255, 157, 0.7);
+  font-size: 12px;
+  padding-left: 8px;
+}
+
+.cursor-blink {
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  background: #00d4ff;
+  animation: cursor-blink 1s infinite;
+  vertical-align: middle;
+  margin-left: 2px;
+  border-radius: 1px;
+}
+
+/* Scanline overlay */
+.scanline {
+  position: relative;
+}
+
+.scanline::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.15), transparent);
+  animation: scanline 4s linear infinite;
+  pointer-events: none;
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+   GLASS CARD — DevOps variant
+   ────────────────────────────────────────────────────────────── */
+
+.glass-devops {
+  background: rgba(10, 22, 40, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-devops:hover {
+  border-color: rgba(0, 212, 255, 0.15);
+  box-shadow: 0 0 32px rgba(0, 212, 255, 0.05);
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+   SECTION LABEL
+   ────────────────────────────────────────────────────────────── */
+
+.section-label {
+  font-family: 'Fira Code', 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #00d4ff;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+   STAT BOX
+   ────────────────────────────────────────────────────────────── */
+
+.stat-box {
+  text-align: center;
+  padding: 8px 16px;
+  background: rgba(0, 212, 255, 0.04);
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  border-radius: 8px;
+  min-width: 80px;
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+   TECH BADGE
+   ────────────────────────────────────────────────────────────── */
+
+.tech-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: rgba(0, 212, 255, 0.06);
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  border-radius: 4px;
+  color: #94a3b8;
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  transition: all 0.2s ease;
+}
+
+.tech-badge:hover {
+  background: rgba(0, 212, 255, 0.12);
+  border-color: rgba(0, 212, 255, 0.3);
+  color: #00d4ff;
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+   CTA BUTTONS
+   ────────────────────────────────────────────────────────────── */
+
+.cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  background: linear-gradient(135deg, #00d4ff, #0061ff);
+  color: #020c1b;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Fira Code', monospace;
+  border-radius: 6px;
+  letter-spacing: 0.05em;
+  transition: all 0.25s ease;
+  animation: pulse-glow 2.5s infinite;
+}
+
+.cta-primary:hover {
+  background: linear-gradient(135deg, #00e8ff, #0073ff);
+  transform: translateY(-2px);
+}
+
+.cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  background: transparent;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  color: #94a3b8;
+  font-size: 12px;
+  font-family: 'Fira Code', monospace;
+  border-radius: 6px;
+  letter-spacing: 0.05em;
+  transition: all 0.25s ease;
+}
+
+.cta-secondary:hover {
+  border-color: rgba(0, 212, 255, 0.5);
+  color: #00d4ff;
+  background: rgba(0, 212, 255, 0.05);
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+   ABOUT — STATUS CARD
+   ────────────────────────────────────────────────────────────── */
+
+.status-card {
+  background: #061020;
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  box-shadow: 0 0 40px rgba(0, 212, 255, 0.05), inset 0 0 60px rgba(0, 0, 0, 0.3);
+}
+
+.status-card-header {
+  background: rgba(0, 212, 255, 0.04);
+  border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+}
+
+.specialty-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(0, 212, 255, 0.08);
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  border-radius: 3px;
+  color: #00d4ff;
+  font-family: monospace;
+  letter-spacing: 0.05em;
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+   SKILLS — CONTAINER REGISTRY CARDS
+   ────────────────────────────────────────────────────────────── */
 
 .skill-card {
   transform-style: preserve-3d;
-  transition: transform 0.55s ease, box-shadow 0.55s ease;
+  transition: transform 0.45s ease, box-shadow 0.45s ease, border-color 0.3s ease;
   border-top: 2px solid transparent;
 }
 
 .skill-card:hover {
   transform:
-    perspective(900px)
-    rotateX(8deg)
-    rotateY(8deg)
-    translateZ(16px);
+    perspective(800px)
+    rotateX(6deg)
+    rotateY(6deg)
+    translateZ(12px);
 }
 
-/* Colored top-border & glow variants per category */
+.skill-card-header {
+  background: rgba(0, 0, 0, 0.2);
+}
 
-.skill-accent-cyan  { border-top-color: #22d3ee; }
-.skill-accent-cyan:hover  { box-shadow: 0 0 36px rgba(34, 211, 238, 0.25); }
+/* Skill badge variants */
+.skill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  letter-spacing: 0.08em;
+}
+
+.badge-running {
+  background: rgba(0, 255, 157, 0.1);
+  color: #00ff9d;
+  border: 1px solid rgba(0, 255, 157, 0.2);
+  animation: status-pulse 2s infinite;
+}
+
+.badge-deployed {
+  background: rgba(0, 212, 255, 0.1);
+  color: #00d4ff;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.badge-default {
+  background: rgba(148, 163, 184, 0.1);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+/* Docker-style image tags */
+.docker-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-family: 'Fira Code', monospace;
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  transition: all 0.2s ease;
+}
+
+.docker-tag:hover {
+  border-color: rgba(0, 212, 255, 0.2);
+  color: #e2e8f0;
+}
+
+.docker-tag-latest {
+  background: rgba(0, 255, 157, 0.08);
+  border-color: rgba(0, 255, 157, 0.2);
+  color: #00ff9d;
+}
+
+.docker-tag-version {
+  background: rgba(121, 40, 202, 0.12);
+  border-color: rgba(121, 40, 202, 0.25);
+  color: #a855f7;
+}
+
+/* Accent color variants (top border) */
+.skill-accent-cyan   { border-top-color: #22d3ee; }
+.skill-accent-cyan:hover   { box-shadow: 0 0 30px rgba(34, 211, 238, 0.18); }
 
 .skill-accent-purple { border-top-color: #c084fc; }
-.skill-accent-purple:hover { box-shadow: 0 0 36px rgba(192, 132, 252, 0.25); }
+.skill-accent-purple:hover { box-shadow: 0 0 30px rgba(192, 132, 252, 0.18); }
 
 .skill-accent-orange { border-top-color: #fb923c; }
-.skill-accent-orange:hover { box-shadow: 0 0 36px rgba(251, 146, 60, 0.25); }
+.skill-accent-orange:hover { box-shadow: 0 0 30px rgba(251, 146, 60, 0.18); }
 
-.skill-accent-green { border-top-color: #4ade80; }
-.skill-accent-green:hover { box-shadow: 0 0 36px rgba(74, 222, 128, 0.25); }
+.skill-accent-green  { border-top-color: #4ade80; }
+.skill-accent-green:hover  { box-shadow: 0 0 30px rgba(74, 222, 128, 0.18); }
 
 .skill-accent-yellow { border-top-color: #facc15; }
-.skill-accent-yellow:hover { box-shadow: 0 0 36px rgba(250, 204, 21, 0.25); }
+.skill-accent-yellow:hover { box-shadow: 0 0 30px rgba(250, 204, 21, 0.18); }
 
-.skill-accent-pink { border-top-color: #f472b6; }
-.skill-accent-pink:hover { box-shadow: 0 0 36px rgba(244, 114, 182, 0.25); }
+.skill-accent-pink   { border-top-color: #f472b6; }
+.skill-accent-pink:hover   { box-shadow: 0 0 30px rgba(244, 114, 182, 0.18); }
 
-/* ── Project cards ── */
 
-.project-card {
-  transform-style: preserve-3d;
-  transition: all 0.55s ease;
-}
+/* ──────────────────────────────────────────────────────────────
+   EXPERIENCE — CI/CD PIPELINE TRACK
+   ────────────────────────────────────────────────────────────── */
 
-.project-card:hover {
-  transform:
-    perspective(900px)
-    rotateX(-4deg)
-    rotateY(4deg)
-    translateZ(20px);
-  box-shadow:
-    16px 16px 50px rgba(0, 0, 0, 0.4),
-    -16px -16px 50px rgba(59, 130, 246, 0.12);
-}
-
-.project-card:hover .project-content {
-  transform: translateZ(30px);
-}
-
-.project-content {
-  transition: transform 0.55s ease;
-  transform-style: preserve-3d;
-}
-
-/* ── Nav active underline ── */
-
-.active-nav-link::after {
-  content: '';
+.pipeline-track {
   position: absolute;
-  left: 0;
-  bottom: -2px;
-  width: 100%;
-  height: 1.5px;
-  background: linear-gradient(90deg, #60efff, #0061ff);
-  border-radius: 2px;
-  animation: nav-underline 0.25s ease forwards;
+  left: 20px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 212, 255, 0.75) 0px,
+    rgba(0, 212, 255, 0.75) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+  background-size: 2px 20px;
+  animation: pipeline-flow 1.2s linear infinite;
 }
 
-/* ── Experience timeline line ── */
+/* Node wrapper: centers the node dot exactly on the track */
+.pipeline-node-wrap {
+  position: absolute;
+  left: 20px;
+  top: 1.25rem;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.pipeline-node {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #020c1b;
+  border: 2px solid #00d4ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: node-pulse 2.5s infinite;
+}
+
+.pipeline-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 4px;
+  font-family: 'Fira Code', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.status-running {
+  background: rgba(0, 255, 157, 0.1);
+  color: #00ff9d;
+  border: 1px solid rgba(0, 255, 157, 0.25);
+  animation: status-pulse 1.5s infinite;
+}
+
+.status-success {
+  background: rgba(0, 212, 255, 0.08);
+  color: #00d4ff;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+   PROJECTS — DEPLOYED SERVICES
+   ────────────────────────────────────────────────────────────── */
+
+.project-deploy-card {
+  transform-style: preserve-3d;
+  transition: transform 0.45s ease, box-shadow 0.45s ease;
+}
+
+.project-deploy-card:hover {
+  transform:
+    perspective(800px)
+    rotateX(-3deg)
+    rotateY(3deg)
+    translateZ(16px);
+  box-shadow:
+    12px 12px 40px rgba(0, 0, 0, 0.4),
+    -12px -12px 40px rgba(0, 212, 255, 0.06);
+}
+
+.metric-widget {
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.metric-widget:hover {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.25);
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+   CONTACT — API FORM
+   ────────────────────────────────────────────────────────────── */
+
+.api-input {
+  background: rgba(2, 12, 27, 0.8);
+  border: 1px solid rgba(0, 212, 255, 0.12);
+  border-radius: 6px;
+  padding: 10px 14px;
+  color: #e2e8f0;
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.api-input::placeholder {
+  color: #334155;
+}
+
+.api-input:focus {
+  border-color: rgba(0, 212, 255, 0.4);
+  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.08);
+}
+
+.api-submit {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 212, 255, 0.08));
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  color: #00d4ff;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  border-radius: 6px;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.api-submit:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(0, 212, 255, 0.15));
+  border-color: rgba(0, 212, 255, 0.5);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+   EXPERIENCE TIMELINE (legacy alias, keep for safety)
+   ────────────────────────────────────────────────────────────── */
 
 .experience-line {
   position: relative;
@@ -192,26 +692,33 @@
   top: 0;
   bottom: 0;
   width: 2px;
-  background: linear-gradient(to bottom, transparent, rgba(96, 239, 255, 0.5), transparent);
+  background: linear-gradient(to bottom, transparent, rgba(0, 212, 255, 0.4), transparent);
 }
 
-/* ── Tech badges ── */
 
-.tech-stack-item {
-  transition: all 0.3s ease;
-  transform-style: preserve-3d;
+/* ──────────────────────────────────────────────────────────────
+   NAV ACTIVE UNDERLINE
+   ────────────────────────────────────────────────────────────── */
+
+.active-nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1.5px;
+  background: linear-gradient(90deg, #00d4ff, #00ff9d);
+  border-radius: 2px;
+  animation: nav-underline 0.25s ease forwards;
 }
 
-.tech-stack-item:hover {
-  transform: translateZ(12px) scale(1.08);
-  text-shadow: 0 0 8px rgba(96, 239, 255, 0.6);
-  border-color: rgba(96, 239, 255, 0.3);
-}
 
-/* ── Misc helpers ── */
+/* ──────────────────────────────────────────────────────────────
+   MISC HELPERS (kept for legacy compatibility)
+   ────────────────────────────────────────────────────────────── */
 
 .text-glow {
-  text-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+  text-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
 }
 
 .hover-lift {
@@ -222,11 +729,44 @@
   transform: translateY(-4px);
 }
 
-.icon-spin {
-  animation: spin 20s linear infinite;
+.animate-pulse-glow {
+  animation: pulse-glow 2.5s infinite;
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+.tech-stack-item {
+  transition: all 0.3s ease;
+}
+
+.tech-stack-item:hover {
+  transform: scale(1.08);
+  text-shadow: 0 0 8px rgba(0, 212, 255, 0.6);
+  border-color: rgba(0, 212, 255, 0.3);
+}
+
+.glass-effect {
+  backdrop-filter: blur(14px);
+  background: rgba(10, 22, 40, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-effect:hover {
+  box-shadow: 0 0 24px rgba(0, 212, 255, 0.12);
+}
+
+.matrix-bg {
+  background: linear-gradient(180deg, rgba(2, 12, 27, 0.98), rgba(2, 12, 27, 0.90));
+}
+
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-16px); }
+}
+
+.icon-spin {
+  animation: spin 20s linear infinite;
 }
