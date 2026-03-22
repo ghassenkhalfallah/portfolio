@@ -1,95 +1,86 @@
 import React, { useEffect, useState, FormEvent } from 'react';
 import emailjs from '@emailjs/browser';
 import profileImage from './profile.jpeg';
-
+import { motion } from 'framer-motion';
+import { TypeAnimation } from 'react-type-animation';
 import { Toaster, toast } from 'react-hot-toast';
-import { 
-  Github, 
-  Linkedin, 
-  Terminal, 
-  Cloud, 
-  Database, 
-  Monitor, 
-  Server,
-  Pocket as Docker,
-  Code2,
-  Cpu,
-  LineChart,
-  Boxes,
-  Network,
-  Settings,
-  Lock,
-  User,
-  Briefcase,
+import {
+  Github,
+  Linkedin,
+  Terminal,
+  Cloud,
   Award,
   BookOpen,
   Coffee,
   Rocket,
   GitBranch,
   TestTube,
-  Workflow
+  Workflow,
+  Boxes,
+  Zap,
+  ArrowRight,
+  ChevronRight,
+  Settings,
+  User,
 } from 'lucide-react';
 
-// Initialize EmailJS
 emailjs.init("cA1VSomT1TRDBhsq9");
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 32 },
+  visible: (i: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.65, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] },
+  }),
+};
+
+const staggerContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
+};
 
 function App() {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
-  const [formData, setFormData] = useState({
-    email: '',
-    message: ''
-  });
+  const [formData, setFormData] = useState({ email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
-      
       const sections = ['home', 'about', 'skills', 'experience', 'projects', 'education', 'contact'];
       const current = sections.find(section => {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
+        const el = document.getElementById(section);
+        if (el) {
+          const rect = el.getBoundingClientRect();
           return rect.top <= 100 && rect.bottom >= 100;
         }
         return false;
       });
-      if (current) {
-        setActiveSection(current);
-      }
+      if (current) setActiveSection(current);
     };
-    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
     if (!formData.email || !formData.message) {
       toast.error('Please fill in all fields');
       return;
     }
-
     setIsSubmitting(true);
-
     try {
-      await emailjs.send(
-        'service_innfiqk',
-        'template_lvdew67',
-        {
-          to_email: 'gassen.kalfallah@enis.tn',
-          from_email: formData.email,
-          message: formData.message,
-        }
-      );
-
-      toast.success('Message sent successfully!');
+      await emailjs.send('service_innfiqk', 'template_lvdew67', {
+        to_email: 'gassen.kalfallah@enis.tn',
+        from_email: formData.email,
+        message: formData.message,
+      });
+      toast.success('Message sent!');
       setFormData({ email: '', message: '' });
-    } catch (error) {
-      console.error('Email error:', error);
-      toast.error('Failed to send message. Please try again.');
+    } catch {
+      toast.error('Failed to send. Try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -106,26 +97,188 @@ function App() {
     { href: '#experience', label: 'Experience' },
     { href: '#projects', label: 'Projects' },
     { href: '#education', label: 'Education' },
-    { href: '#contact', label: 'Contact' }
+    { href: '#contact', label: 'Contact' },
   ];
+
+  const skills = [
+    {
+      icon: <Cloud className="w-10 h-10" />,
+      iconColor: 'text-cyan-400',
+      accentClass: 'skill-accent-cyan',
+      title: 'Cloud Platforms',
+      desc: 'Provisions multi-region AWS and Azure environments with Terraform — reproducible infrastructure at scale, zero manual clicks.',
+      tools: ['AWS', 'Azure', 'Terraform', 'EKS'],
+    },
+    {
+      icon: <GitBranch className="w-10 h-10" />,
+      iconColor: 'text-purple-400',
+      accentClass: 'skill-accent-purple',
+      title: 'DevOps & CI/CD',
+      desc: 'Ships production-ready code through battle-tested GitLab pipelines with Docker containerization and Kubernetes orchestration.',
+      tools: ['GitLab CI/CD', 'Docker', 'Kubernetes', 'Jenkins'],
+    },
+    {
+      icon: <Boxes className="w-10 h-10" />,
+      iconColor: 'text-orange-400',
+      accentClass: 'skill-accent-orange',
+      title: 'Artifact Management',
+      desc: 'Manages the full artifact lifecycle — every binary traceable, every release reproducible, zero dependency drift.',
+      tools: ['Nexus', 'Artifactory', 'Docker Hub', 'SharePoint'],
+    },
+    {
+      icon: <TestTube className="w-10 h-10" />,
+      iconColor: 'text-green-400',
+      accentClass: 'skill-accent-green',
+      title: 'Testing & Quality',
+      desc: 'Runs parallel nightly test suites across live TPE hardware with X-Ray integration — bugs caught before they reach payment terminals.',
+      tools: ['X-Ray', 'Test Automation', 'Integration Testing', 'CI Testing'],
+    },
+    {
+      icon: <Terminal className="w-10 h-10" />,
+      iconColor: 'text-yellow-400',
+      accentClass: 'skill-accent-yellow',
+      title: 'Scripting & OS',
+      desc: 'Automates the unglamorous work — Shell, Bash, and Python scripts that run quietly in production and eliminate human error.',
+      tools: ['Shell Scripting', 'Linux', 'Bash', 'Python'],
+    },
+    {
+      icon: <Workflow className="w-10 h-10" />,
+      iconColor: 'text-pink-400',
+      accentClass: 'skill-accent-pink',
+      title: 'Methodologies & Tools',
+      desc: 'Ships in 2-week sprints, tracks in Jira, reviews in Git — Agile discipline without ceremony overhead.',
+      tools: ['Agile', 'Scrum', 'Jira', 'Git'],
+    },
+  ];
+
+  const experiences = [
+    {
+      role: 'DevOps & Automation Engineer',
+      company: 'Telnet × Worldline',
+      period: 'Sep 2023 — Present',
+      highlight: 'Building the CI/CD backbone behind global payment terminal software.',
+      body: (
+        <>
+          <p className="text-gray-300 text-sm mb-5 leading-relaxed">
+            Embedded with Worldline — a global leader in electronic payment solutions — designing and maintaining the DevOps infrastructure that underpins TPE software development and release cycles.
+          </p>
+          <h4 className="text-xs font-semibold text-blue-400 uppercase tracking-widest mb-3">Key Wins</h4>
+          <ul className="space-y-3 text-sm text-gray-300 mb-5">
+            {[
+              ['Terminal Packager', 'Automated consolidation of 15+ TPE software components into validated packages — reduced packaging time from hours to under 60 seconds, deployed to production.'],
+              ['Infrastructure Resilience', 'Built a Docker-based local simulation of payment servers (acquirer + treatment) that kept development unblocked during a major infrastructure migration.'],
+              ['Automated TPE Testing', 'Architected a CI/CD-driven testing system with nightly parallel runs across multiple physical payment terminals — results integrated with X-Ray for instant visibility.'],
+            ].map(([label, text], i) => (
+              <li key={i} className="flex gap-3">
+                <ChevronRight className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                <span><strong className="text-white">{label}:</strong> {text}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      ),
+      stack: ['Docker', 'GitLab CI/CD', 'Nexus', 'Artifactory', 'X-Ray', 'Shell', 'Linux'],
+    },
+    {
+      role: 'DevOps & Cloud Engineer Intern',
+      company: 'Spark-it',
+      period: 'Feb 2023 — Jun 2023',
+      highlight: 'Migrated on-premise DevOps infrastructure to AWS end-to-end with Terraform.',
+      body: null,
+      achievements: [
+        'Provisioned and managed AWS infrastructure with Terraform, cutting setup time by 50%.',
+        'Designed secure, modular GitLab CI/CD pipelines for infra and app deployment.',
+        'Dockerized application services for scalability and rapid environment replication.',
+        'Wrote Kubernetes manifests for EKS — fault-tolerant, self-healing deployments.',
+        'Implemented Velero for full cluster backup and disaster recovery.',
+      ],
+      stack: ['AWS', 'Terraform', 'Kubernetes', 'Docker', 'Velero', 'GitLab CI', 'Azure'],
+    },
+    {
+      role: 'Software Development Intern',
+      company: 'LUNAR-TC',
+      period: 'Jul 2022 — Aug 2022',
+      highlight: 'Built a containerized product management microservice with Spring Boot.',
+      body: null,
+      achievements: [
+        'Designed and developed a product management microservice using Spring Boot.',
+        'Containerized with Docker for consistent, portable deployment.',
+        'Applied Git-based version control and collaborative development workflows.',
+      ],
+      stack: null,
+    },
+  ];
+
+  const projects = [
+    {
+      title: 'Terminal Packager',
+      subtitle: 'Internal Platform Tool · Worldline / Telnet',
+      icon: <Zap className="w-7 h-7" />,
+      iconColor: 'text-yellow-400',
+      problem: 'Packaging 15+ TPE software components took hours manually — a bottleneck before every release.',
+      solution: 'Built an automated tool with minimalist Docker images and GitLab CI/CD pipelines that validates, consolidates, and delivers a production-ready TPE package in a single pipeline run.',
+      outcome: 'Hours → under 60 seconds. Zero manual errors. Deployed to production.',
+      tags: ['Docker', 'GitLab CI/CD', 'Shell Scripting', 'Nexus'],
+      metrics: ['~99% Time Reduction', 'Production Deployed', 'Zero Manual Steps'],
+    },
+    {
+      title: 'TPE Automated Test Infrastructure',
+      subtitle: 'CI/CD · Hardware QA · Worldline / Telnet',
+      icon: <TestTube className="w-7 h-7" />,
+      iconColor: 'text-green-400',
+      problem: 'Manual testing on physical payment terminals created a 24-hour feedback gap between a commit and test results.',
+      solution: 'Architected a GitLab CI/CD pipeline that orchestrates parallel nightly test runs across multiple live TPEs, with centralized X-Ray result reporting.',
+      outcome: 'Bugs caught the same night — not discovered next sprint.',
+      tags: ['GitLab CI/CD', 'X-Ray', 'Docker', 'Shell Scripting'],
+      metrics: ['Parallel Execution', 'Nightly Automation', 'X-Ray Integration'],
+    },
+    {
+      title: 'Azure Infrastructure Automation',
+      subtitle: 'IaC · Cloud Migration · Spark-it',
+      icon: <Cloud className="w-7 h-7" />,
+      iconColor: 'text-cyan-400',
+      problem: 'Manual Azure provisioning was inconsistent, slow, and impossible to audit across environments.',
+      solution: 'Automated the full Azure infrastructure lifecycle with Terraform IaC and GitLab CI — reproducible environments across dev, staging, and production from a single git push.',
+      outcome: '50% faster environment setup. Fully auditable. Zero configuration drift.',
+      tags: ['Azure', 'Terraform', 'GitLab CI', 'IaC'],
+      metrics: ['50% Faster Setup', 'Full IaC Coverage', 'Audit-Ready'],
+    },
+    {
+      title: 'Jenkins CI/CD Pipeline',
+      subtitle: 'Java · Container-First Delivery · Spark-it',
+      icon: <Workflow className="w-7 h-7" />,
+      iconColor: 'text-purple-400',
+      problem: 'Java application deployments were manual, inconsistent, and required intervention at every step.',
+      solution: 'Built a zero-downtime delivery pipeline — Maven build, Docker image creation, and automated deployment triggered by a git push.',
+      outcome: 'Every commit automatically validated and shipped. No manual deployments.',
+      tags: ['Jenkins', 'Docker', 'Maven', 'Java'],
+      metrics: ['Automated on Push', 'Container-First', 'Zero Downtime'],
+    },
+  ];
+
+  const floatingIcons = [GitBranch, Cloud, Terminal, Boxes, Workflow, Settings];
 
   return (
     <div className="min-h-screen bg-gray-900 text-white overflow-hidden">
-      <nav className={`fixed w-full z-50 transition-all duration-300 ${
-        scrolled ? 'bg-gray-900/90 backdrop-blur-md py-4' : 'py-6'
+
+      {/* ── NAV ── */}
+      <nav className={`fixed w-full z-50 transition-all duration-500 ${
+        scrolled ? 'bg-gray-900/90 backdrop-blur-md py-4 border-b border-white/5' : 'py-6'
       }`}>
         <div className="container mx-auto px-4 flex justify-between items-center">
-          <a href="#home" className="text-2xl font-bold gradient-text hover-lift">
-            <User className="inline-block mr-2" />
-            Ghassen.DevOps
+          <a href="#home" className="text-lg font-bold gradient-text flex items-center gap-2 hover-lift">
+            <Terminal className="w-4 h-4" />
+            ghassen.devops
           </a>
-          <div className="flex gap-6">
+          <div className="hidden md:flex gap-6">
             {navItems.map(item => (
-              <a 
+              <a
                 key={item.href}
                 href={item.href}
-                className={`hover:text-blue-400 transition-colors ${
-                  activeSection === item.href.slice(1) ? 'text-blue-400' : ''
+                className={`text-sm transition-all relative pb-1 ${
+                  activeSection === item.href.slice(1)
+                    ? 'text-blue-400 active-nav-link'
+                    : 'text-gray-400 hover:text-white'
                 }`}
               >
                 {item.label}
@@ -135,468 +288,499 @@ function App() {
         </div>
       </nav>
 
-      <header id="home" className="min-h-screen flex items-center justify-center relative matrix-bg">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80')] bg-cover bg-fixed bg-center opacity-10"></div>
-        
-        <div className="absolute inset-0 overflow-hidden">
-          {Array.from({ length: 20 }).map((_, i) => (
+      {/* ── HERO ── */}
+      <header id="home" className="min-h-screen flex items-center justify-center relative matrix-bg overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80')] bg-cover bg-fixed bg-center opacity-5" />
+
+        {/* Floating background icons */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {floatingIcons.map((Icon, i) => (
             <div
               key={i}
               className="absolute animate-float"
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                opacity: 0.1
+                left: `${[8, 22, 72, 88, 50, 35][i]}%`,
+                top: `${[18, 72, 12, 62, 88, 45][i]}%`,
+                animationDelay: `${i * 1.1}s`,
+                opacity: 0.05,
               }}
             >
-              <Settings className="w-8 h-8 icon-spin" />
+              <Icon style={{ width: `${[80, 56, 96, 48, 64, 40][i]}px`, height: `${[80, 56, 96, 48, 64, 40][i]}px` }} />
             </div>
           ))}
         </div>
 
         <div className="container mx-auto px-4 z-10 relative">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="mb-8 animate-float">
+
+            {/* Avatar */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.75 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className="mb-8"
+            >
               <div className="relative inline-block">
-                <div className="absolute inset-0 bg-blue-500 rounded-full blur-xl opacity-20 animate-pulse"></div>
-                <img 
+                <div className="absolute inset-0 bg-blue-500 rounded-full blur-2xl opacity-20 animate-pulse" />
+                <img
                   src={profileImage}
-                  alt="Profile" 
-                  className="w-40 h-40 rounded-full border-4 border-blue-400/30 object-cover relative z-10"
+                  alt="Ghassen Khalfallah"
+                  className="w-36 h-36 rounded-full border-2 border-blue-400/30 object-cover relative z-10"
                 />
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-gray-900 z-20" title="Available" />
               </div>
-            </div>
-            <h1 className="text-6xl md:text-8xl font-bold mb-6 gradient-text animate-tilt">
+            </motion.div>
+
+            {/* Tagline */}
+            <motion.p
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-blue-400/70 text-xs font-mono tracking-[0.35em] uppercase mb-5"
+            >
+              Infrastructure as Code · Delivery as Art
+            </motion.p>
+
+            {/* Name */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="text-5xl md:text-7xl font-bold mb-5 gradient-text"
+            >
               Ghassen Khalfallah
-            </h1>
-            <p className="text-xl md:text-2xl text-blue-300 mb-8 font-light">
-              Software Engineer | DevOps & Automation Specialist
-            </p>
-            <div className="flex flex-wrap justify-center gap-4 mb-12">
-              {['AWS', 'GitLab CI/CD', 'Docker', 'Kubernetes', 'Terraform'].map((tech, i) => (
-                <span 
-                  key={i}
-                  className="tech-stack-item px-4 py-2 bg-blue-500/10 rounded-full text-blue-300 text-sm"
-                >
+            </motion.h1>
+
+            {/* Typewriter */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+              className="text-lg md:text-xl text-gray-400 mb-8 h-7 font-light"
+            >
+              <TypeAnimation
+                sequence={[
+                  'DevOps Engineer', 2200,
+                  'Cloud Infrastructure Specialist', 2200,
+                  'CI/CD Architect', 2200,
+                  'Automation Engineer', 2200,
+                ]}
+                repeat={Infinity}
+                className="text-blue-300"
+              />
+            </motion.div>
+
+            {/* Stats */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.75 }}
+              className="flex justify-center gap-10 mb-9"
+            >
+              {[
+                { value: '2+', label: 'Years in Production' },
+                { value: '<60s', label: 'Deploy Cycles' },
+                { value: '3', label: 'Cloud Platforms' },
+              ].map((s, i) => (
+                <div key={i} className="text-center">
+                  <div className="text-2xl font-bold gradient-text">{s.value}</div>
+                  <div className="text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">{s.label}</div>
+                </div>
+              ))}
+            </motion.div>
+
+            {/* Tech badges */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.88 }}
+              className="flex flex-wrap justify-center gap-2.5 mb-11"
+            >
+              {['Docker', 'Kubernetes', 'Terraform', 'GitLab CI/CD', 'AWS'].map((tech, i) => (
+                <span key={i} className="tech-stack-item px-3.5 py-1.5 bg-white/5 border border-white/10 rounded-full text-gray-300 text-sm">
                   {tech}
                 </span>
               ))}
-            </div>
-            <div className="flex justify-center gap-6">
-              <a 
-                href="#contact" 
-                className="group relative px-8 py-4 bg-blue-600 rounded-lg overflow-hidden animate-pulse-glow"
+            </motion.div>
+
+            {/* CTAs */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1 }}
+              className="flex justify-center gap-4"
+            >
+              <a
+                href="#contact"
+                className="group px-8 py-3.5 bg-blue-600 rounded-xl font-semibold flex items-center gap-2 animate-pulse-glow hover:bg-blue-500 transition-colors"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <span className="relative">Let's Connect</span>
+                Work With Me
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </a>
-              <a 
-                href="#about" 
-                className="px-8 py-4 border border-blue-400/30 rounded-lg hover:border-blue-400 transition-colors hover-lift"
+              <a
+                href="#about"
+                className="px-8 py-3.5 border border-white/10 rounded-xl hover:border-blue-400/40 hover:bg-white/5 transition-all"
               >
-                About Me
+                My Story
               </a>
-            </div>
+            </motion.div>
+
           </div>
         </div>
       </header>
 
+      {/* ── ABOUT ── */}
       <section id="about" className="py-32 relative overflow-hidden">
-        <div className="absolute inset-0 cyber-grid opacity-20"></div>
+        <div className="absolute inset-0 cyber-grid opacity-10" />
         <div className="container mx-auto px-4 relative">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-20 gradient-text">
-            The Journey So Far
-          </h2>
-          <div className="max-w-4xl mx-auto glass-effect p-8 rounded-xl">
-            <div className="space-y-8">
-              <div className="flex gap-6 items-start">
-                <Rocket className="w-8 h-8 text-blue-400 flex-shrink-0 mt-1" />
+          <motion.h2
+            initial={{ opacity: 0, x: -24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-4xl md:text-5xl font-bold text-center mb-20 gradient-text"
+          >
+            The Engineer Behind the Pipeline
+          </motion.h2>
+          <div className="max-w-4xl mx-auto glass-effect p-10 rounded-2xl">
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="space-y-10"
+            >
+              {[
+                {
+                  icon: <Rocket className="w-7 h-7 text-blue-400 flex-shrink-0 mt-1" />,
+                  label: 'Mission',
+                  text: 'When payment terminals ship with bugs, global transactions fail. I build the infrastructure that prevents that — automated pipelines, containerized environments, and testing systems that catch problems before they reach production. Currently embedded at Worldline through Telnet, working on the DevOps backbone of critical TPE software.',
+                },
+                {
+                  icon: <Coffee className="w-7 h-7 text-blue-400 flex-shrink-0 mt-1" />,
+                  label: 'Philosophy',
+                  text: 'Every manual process is a future incident. Every untracked deployment is a liability. I don\'t automate to be lazy — I automate to eliminate the gap between code and confidence. Infrastructure should be invisible, predictable, and boring in the best possible way.',
+                },
+              ].map(({ icon, label, text }, i) => (
+                <motion.div key={i} variants={fadeUp} className="flex gap-6 items-start">
+                  {icon}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2 text-glow">{label}</h3>
+                    <p className="text-gray-300 leading-relaxed text-sm">{text}</p>
+                  </div>
+                </motion.div>
+              ))}
+
+              <motion.div variants={fadeUp} className="flex gap-6 items-start">
+                <Award className="w-7 h-7 text-blue-400 flex-shrink-0 mt-1" />
                 <div>
-                  <h3 className="text-xl font-semibold mb-2 text-glow">Mission</h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    I am a results-driven Software Engineer with a strong passion for DevOps, Cloud infrastructure, and automation. 
-                    Currently at Telnet, working with Worldline, I specialize in building robust and efficient systems that underpin 
-                    the development and testing of critical Electronic Payment Terminal (TPE) software.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-6 items-start">
-                <Coffee className="w-8 h-8 text-blue-400 flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="text-xl font-semibold mb-2 text-glow">Philosophy</h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    I thrive on solving complex challenges, streamlining workflows, and delivering tangible impact through 
-                    advanced CI/CD pipelines, Dockerization, and automated testing frameworks. My focus is on enhancing 
-                    developer productivity and ensuring high-quality, resilient software delivery.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-6 items-start">
-                <Award className="w-8 h-8 text-blue-400 flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="text-xl font-semibold mb-2 text-glow">Key Achievements</h3>
-                  <ul className="text-gray-300 space-y-2">
-                    <li>• Developed Terminal Packager tool reducing packaging time from hours to under one minute</li>
-                    <li>• Implemented Docker-based simulation environment for uninterrupted development</li>
-                    <li>• Architected automated TPE testing infrastructure with GitLab CI/CD</li>
-                    <li>• Led successful infrastructure migration projects</li>
+                  <h3 className="text-lg font-semibold mb-3 text-glow">Key Achievements</h3>
+                  <ul className="space-y-2.5 text-sm text-gray-300">
+                    {[
+                      ['Terminal Packager', 'reduced packaging time from hours to under 60 seconds, deployed to production'],
+                      ['Docker-simulated payment stack', 'zero development downtime during major infrastructure migration'],
+                      ['Automated TPE test infrastructure', 'nightly parallel CI runs across physical terminals with X-Ray reporting'],
+                      ['AWS IaC with Terraform', '50% faster environment provisioning at Spark-it'],
+                    ].map(([label, text], i) => (
+                      <li key={i} className="flex gap-2.5">
+                        <ChevronRight className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                        <span>
+                          <strong className="text-white">{label}</strong> → {text}
+                        </span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </section>
 
+      {/* ── SKILLS ── */}
       <section id="skills" className="py-32 relative overflow-hidden bg-gray-900/50">
-        <div className="absolute inset-0 cyber-grid opacity-20"></div>
+        <div className="absolute inset-0 cyber-grid opacity-10" />
         <div className="container mx-auto px-4 relative">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-20 gradient-text">
-            Technical Expertise
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { 
-                icon: <Cloud className="w-12 h-12 skill-icon" />, 
-                title: 'Cloud Platforms', 
-                desc: 'Experience with major cloud providers and infrastructure automation',
-                tools: ['AWS', 'Azure', 'Terraform', 'EKS']
-              },
-              { 
-                icon: <GitBranch className="w-12 h-12 skill-icon" />, 
-                title: 'DevOps & CI/CD', 
-                desc: 'Expertise in automation, containerization, and continuous delivery',
-                tools: ['GitLab CI/CD', 'Docker', 'Kubernetes', 'Jenkins']
-              },
-              { 
-                icon: <Boxes className="w-12 h-12 skill-icon" />, 
-                title: 'Artifact Management', 
-                desc: 'Proficient in managing and distributing software artifacts',
-                tools: ['Nexus', 'Artifactory', 'Docker Hub', 'SharePoint']
-              },
-              { 
-                icon: <TestTube className="w-12 h-12 skill-icon" />, 
-                title: 'Testing & Quality', 
-                desc: 'Automated testing and quality assurance infrastructure',
-                tools: ['X-Ray', 'Test Automation', 'Integration Testing', 'CI Testing']
-              },
-              { 
-                icon: <Terminal className="w-12 h-12 skill-icon" />, 
-                title: 'Scripting & OS', 
-                desc: 'Strong command of system administration and automation',
-                tools: ['Shell Scripting', 'Linux', 'Bash', 'Python']
-              },
-              { 
-                icon: <Workflow className="w-12 h-12 skill-icon" />, 
-                title: 'Methodologies & Tools', 
-                desc: 'Experience with modern development practices and tools',
-                tools: ['Agile', 'Scrum', 'Jira', 'Git']
-              },
-            ].map((skill, index) => (
-              <div 
-                key={index} 
-                className="skill-card glass-effect p-8 rounded-xl"
+          <motion.h2
+            initial={{ opacity: 0, x: -24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-4xl md:text-5xl font-bold text-center mb-20 gradient-text"
+          >
+            Technical Arsenal
+          </motion.h2>
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7"
+          >
+            {skills.map((skill, index) => (
+              <motion.div
+                key={index}
+                variants={fadeUp}
+                custom={index}
+                className={`skill-card glass-effect p-8 rounded-2xl ${skill.accentClass}`}
               >
-                <div className="text-blue-400 mb-6">{skill.icon}</div>
-                <h3 className="text-2xl font-semibold mb-4">{skill.title}</h3>
-                <p className="text-gray-300 mb-6">{skill.desc}</p>
+                <div className={`${skill.iconColor} mb-5`}>{skill.icon}</div>
+                <h3 className="text-lg font-semibold mb-2">{skill.title}</h3>
+                <p className="text-gray-400 mb-6 text-sm leading-relaxed">{skill.desc}</p>
                 <div className="flex flex-wrap gap-2">
                   {skill.tools.map((tool, i) => (
-                    <span 
-                      key={i}
-                      className="px-3 py-1 bg-blue-500/20 rounded-full text-blue-300 text-sm hover-lift"
-                    >
+                    <span key={i} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-gray-300 text-xs">
                       {tool}
                     </span>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
+      {/* ── EXPERIENCE ── */}
       <section id="experience" className="py-32 relative">
-        <div className="absolute inset-0 cyber-grid opacity-20"></div>
+        <div className="absolute inset-0 cyber-grid opacity-10" />
         <div className="container mx-auto px-4 relative">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-20 gradient-text">
+          <motion.h2
+            initial={{ opacity: 0, x: -24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-4xl md:text-5xl font-bold text-center mb-20 gradient-text"
+          >
             Professional Journey
-          </h2>
-          <div className="max-w-4xl mx-auto space-y-12">
-            {[
-              {
-                role: 'Software Engineer | DevOps & Automation Specialist',
-                company: 'Telnet',
-                period: 'September 2023 - Present',
-                description: (
-                  <>
-                    <span>
-                      Software Engineer at Telnet, contributing to critical projects for Worldline, a global leader in online payment solutions. My role focuses on enabling, optimizing, and automating the development and testing infrastructure for Electronic Payment Terminal (TPE) software, ensuring efficiency, resilience, and quality.
-                    </span>
-                    <div className="mt-6">
-                      <h4 className="text-xl font-semibold text-blue-400 mb-2">Key Projects & Achievements</h4>
-                      <ul className="list-disc list-inside space-y-2 text-gray-300">
-                        <li>
-                          <b>Infrastructure Resilience & Business Continuity:</b> Developed and deployed a local Docker-based solution to simulate core payment servers (acquirer, treatment), ensuring uninterrupted development and testing during a major infrastructure migration. Actively participated in the successful migration to the new infrastructure.
-                        </li>
-                        <li>
-                          <b>Terminal Packager Development & Automation:</b> Led the development of the "Terminal Packager" tool, automating the complex process of consolidating and packaging TPE software components. This solution generates optimized, all-in-one TPE packages in under one minute, reducing manual effort and errors.
-                          <ul className="list-disc ml-6 space-y-1">
-                            <li>Designed and implemented highly optimized, minimalist Docker images for the tool.</li>
-                            <li>Developed comprehensive GitLab CI/CD pipelines for automated package delivery, including syntax validation, merge request difference reporting, and automated release builds.</li>
-                            <li>Successfully deployed the Terminal Packager to production servers.</li>
-                          </ul>
-                        </li>
-                        <li>
-                          <b>Automated TPE Software Testing & CI:</b> Architected and implemented an automated TPE software testing infrastructure, integrating nightly automated test runs into CI/CD pipelines, orchestrating parallel test execution across multiple TPEs, and integrating results with X-Ray for centralized reporting.
-                        </li>
-                      </ul>
-                    </div>
-                    <div className="mt-6">
-                      <h4 className="text-xl font-semibold text-blue-400 mb-2">Technical Stack</h4>
-                      <div className="flex flex-wrap gap-3 text-blue-300 text-sm">
-                        <span className="px-3 py-1 bg-blue-500/20 rounded-full">Docker</span>
-                        <span className="px-3 py-1 bg-blue-500/20 rounded-full">GitLab CI/CD</span>
-                        <span className="px-3 py-1 bg-blue-500/20 rounded-full">Nexus</span>
-                        <span className="px-3 py-1 bg-blue-500/20 rounded-full">Artifactory</span>
-                        <span className="px-3 py-1 bg-blue-500/20 rounded-full">X-Ray</span>
-                        <span className="px-3 py-1 bg-blue-500/20 rounded-full">Shell Scripting</span>
-                        <span className="px-3 py-1 bg-blue-500/20 rounded-full">Linux</span>
-                        <span className="px-3 py-1 bg-blue-500/20 rounded-full">DevOps Practices</span>
-                        <span className="px-3 py-1 bg-blue-500/20 rounded-full">CI/CD Runners</span>
-                      </div>
-                    </div>
-                  </>
-                ),
-                achievements: []
-              },
-              {
-                role: 'DevOps & Cloud Engineer Intern',
-                company: 'Spark-it',
-                period: 'February 2023 - June 2023',
-                description: 'Led the migration of a DevOps solution to AWS Cloud, focusing on infrastructure automation and container orchestration.',
-                achievements: [
-                  'Provisioned and managed AWS infrastructure using Terraform, reducing setup time by 50%.',
-                  'Created secure, modular GitLab CI/CD pipelines for infrastructure and application deployment.',
-                  'Dockerized application services to improve scalability and enable rapid environment replication.',
-                  'Wrote Kubernetes manifests for EKS, ensuring fault-tolerant, self-healing deployments.',
-                  'Enabled disaster recovery via Velero, ensuring full cluster backup and restore capabilities.'
-                ],
-                technicalStack: [
-                  'AWS', 'Terraform', 'Kubernetes', 'Docker', 'Velero', 'GitLab CI', 'Azure'
-                ]
-              },
-              {
-                role: 'Software Development Intern',
-                company: 'LUNAR-TC',
-                period: 'July 2022 - August 2022',
-                description: 'Developed a Product Management Microservice, gaining hands-on experience with modern development practices.',
-                achievements: [
-                  'Designed and developed microservice for product management using Spring Boot',
-                  'Implemented containerization using Docker for consistent deployment',
-                  'Utilized Git for version control and collaborative development',
-                  'Gained practical experience with microservices architecture'
-                ]
-              },
-              {
-                role: 'Technical Intern',
-                company: 'Tunisie Telecom',
-                period: 'July 2021 - August 2021',
-                description: 'Gained exposure to telecom infrastructure and operations.',
-                achievements: [
-                  'Studied company operations and telecom infrastructure',
-                  'Participated in technical maintenance procedures',
-                  'Observed service delivery processes',
-                  'Learned about telecommunications industry standards'
-                ]
-              }
-            ].map((exp, index) => (
-              <div key={index} className="glass-effect p-8 rounded-xl experience-line">
-                <div className="flex flex-wrap gap-4 items-center mb-4">
-                  <h3 className="text-2xl font-semibold gradient-text">{exp.role}</h3>
-                  <span className="text-blue-300">@{exp.company}</span>
-                  <span className="text-gray-400 text-sm">{exp.period}</span>
+          </motion.h2>
+          <div className="max-w-4xl mx-auto space-y-7">
+            {experiences.map((exp, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -24 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="glass-effect p-8 rounded-2xl experience-line"
+              >
+                <div className="flex flex-wrap gap-2 items-baseline mb-1">
+                  <h3 className="text-xl font-semibold gradient-text">{exp.role}</h3>
+                  <span className="text-blue-400 text-sm">@ {exp.company}</span>
                 </div>
-                <p className="text-gray-300 mb-4">{exp.description}</p>
-                <ul className="space-y-2">
-                  {exp.achievements.map((achievement, i) => (
-                    <li key={i} className="text-gray-300 flex items-start gap-2">
-                      <span className="text-blue-400">•</span>
-                      {achievement}
-                    </li>
-                  ))}
-                </ul>
-                {exp.technicalStack && (
-                  <div className="mt-4 flex flex-wrap gap-3 text-blue-300 text-sm">
-                    {exp.technicalStack.map((tech, i) => (
-                      <span key={i} className="px-3 py-1 bg-blue-500/20 rounded-full">{tech}</span>
+                <p className="text-gray-500 text-xs font-mono mb-3">{exp.period}</p>
+                <p className="text-gray-400 text-sm italic border-l-2 border-blue-400/30 pl-4 mb-5">{exp.highlight}</p>
+
+                {exp.body}
+
+                {'achievements' in exp && exp.achievements && (
+                  <ul className="space-y-2 mb-5">
+                    {exp.achievements.map((a, i) => (
+                      <li key={i} className="text-gray-300 text-sm flex gap-2">
+                        <ChevronRight className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                        {a}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {exp.stack && (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {exp.stack.map((tech, i) => (
+                      <span key={i} className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-300 text-xs">
+                        {tech}
+                      </span>
                     ))}
                   </div>
                 )}
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* ── PROJECTS ── */}
       <section id="projects" className="py-32 bg-gray-900/50 relative">
-        <div className="absolute inset-0 cyber-grid opacity-10"></div>
+        <div className="absolute inset-0 cyber-grid opacity-10" />
         <div className="container mx-auto px-4 relative">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-20 gradient-text">
+          <motion.h2
+            initial={{ opacity: 0, x: -24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-4xl md:text-5xl font-bold text-center mb-20 gradient-text"
+          >
             Featured Projects
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            {[
-              {
-                title: 'Azure Infrastructure Automation',
-                desc: 'Developed an automated solution for deploying Azure cloud infrastructure using Infrastructure as Code (IaC) principles and GitLab CI.',
-                icon: <Cloud className="w-8 h-8" />,
-                tags: ['Azure', 'Terraform', 'GitLab CI', 'IaC'],
-                metrics: ['Automated Deployment', 'Infrastructure as Code', 'CI/CD Integration']
-              },
-              {
-                title: 'Jenkins CI/CD Pipeline',
-                desc: 'Designed and implemented a comprehensive CI/CD pipeline for Java applications using Jenkins, including build automation and containerization.',
-                icon: <Workflow className="w-8 h-8" />,
-                tags: ['Jenkins', 'Docker', 'Maven', 'Java'],
-                metrics: ['Automated Builds', 'Container Integration', 'Continuous Delivery']
-              },
-            ].map((project, index) => (
-              <div key={index} className="project-card glass-effect p-8 rounded-xl">
-                <div className="project-content">
-                  <div className="text-blue-400 mb-6">{project.icon}</div>
-                  <h3 className="text-2xl font-semibold mb-4">{project.title}</h3>
-                  <p className="text-gray-300 mb-6">{project.desc}</p>
-                  <div className="space-y-4">
-                    <div className="flex flex-wrap gap-3">
-                      {project.tags.map((tag, i) => (
-                        <span key={i} className="px-3 py-1 bg-blue-500/20 rounded-full text-blue-300 text-sm hover-lift">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {project.metrics.map((metric, i) => (
-                        <div key={i} className="text-center p-2 bg-blue-500/10 rounded-lg">
-                          <span className="text-sm text-blue-300">{metric}</span>
-                        </div>
-                      ))}
-                    </div>
+          </motion.h2>
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-7 max-w-5xl mx-auto"
+          >
+            {projects.map((project, index) => (
+              <motion.div
+                key={index}
+                variants={fadeUp}
+                custom={index}
+                className="project-card glass-effect p-8 rounded-2xl flex flex-col"
+              >
+                <div className="project-content flex flex-col flex-1">
+                  <div className={`${project.iconColor} mb-4`}>{project.icon}</div>
+                  <h3 className="text-lg font-semibold mb-0.5">{project.title}</h3>
+                  <p className="text-[11px] text-gray-500 font-mono mb-5">{project.subtitle}</p>
+
+                  <div className="space-y-2.5 mb-6 flex-1">
+                    <p className="text-sm text-gray-400">
+                      <span className="text-red-400/70 text-[10px] font-semibold uppercase tracking-wider">Problem · </span>
+                      {project.problem}
+                    </p>
+                    <p className="text-sm text-gray-300">
+                      <span className="text-blue-400/70 text-[10px] font-semibold uppercase tracking-wider">Solution · </span>
+                      {project.solution}
+                    </p>
+                    <p className="text-sm text-white font-medium">
+                      <span className="text-green-400/70 text-[10px] font-semibold uppercase tracking-wider">Outcome · </span>
+                      {project.outcome}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {project.tags.map((tag, i) => (
+                      <span key={i} className="px-2.5 py-1 bg-white/5 border border-white/10 rounded-full text-gray-300 text-xs">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    {project.metrics.map((metric, i) => (
+                      <div key={i} className="text-center py-2 px-1 bg-blue-500/10 border border-blue-500/10 rounded-lg">
+                        <span className="text-[11px] text-blue-300 leading-tight block">{metric}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
+      {/* ── EDUCATION ── */}
       <section id="education" className="py-32 relative">
-        <div className="absolute inset-0 cyber-grid opacity-20"></div>
+        <div className="absolute inset-0 cyber-grid opacity-10" />
         <div className="container mx-auto px-4 relative">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-20 gradient-text">
+          <motion.h2
+            initial={{ opacity: 0, x: -24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-4xl md:text-5xl font-bold text-center mb-20 gradient-text"
+          >
             Education
-          </h2>
-          <div className="max-w-4xl mx-auto space-y-8">
+          </motion.h2>
+          <div className="max-w-4xl mx-auto space-y-5">
             {[
-              {
-                degree: 'Engineering Cycle in Computer Engineering',
-                institution: "National Engineering School of Sfax (ENIS)",
-                icon: <BookOpen className="w-8 h-8" />
-              },
-              {
-                degree: 'Preparatory Cycle (Physics / Technology)',
-                institution: "Preparatory Institute for Engineering Studies of Monastir (IPEIM)",
-                icon: <Award className="w-8 h-8" />
-              },
-              {
-                degree: 'Technical Baccalaureate',
-                institution: "Eljem High School",
-                icon: <BookOpen className="w-8 h-8" />
-              }
+              { degree: 'Engineering Cycle — Computer Engineering', institution: 'National Engineering School of Sfax (ENIS)', icon: <BookOpen className="w-6 h-6" /> },
+              { degree: 'Preparatory Cycle — Physics & Technology', institution: 'Preparatory Institute for Engineering Studies of Monastir (IPEIM)', icon: <Award className="w-6 h-6" /> },
+              { degree: 'Technical Baccalaureate', institution: 'Eljem High School', icon: <BookOpen className="w-6 h-6" /> },
             ].map((edu, index) => (
-              <div key={index} className="glass-effect p-8 rounded-xl">
-                <div className="flex items-start gap-6">
-                  <div className="text-blue-400">{edu.icon}</div>
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2">{edu.degree}</h3>
-                    <p className="text-gray-300">{edu.institution}</p>
-                  </div>
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="glass-effect p-6 rounded-2xl flex items-start gap-5"
+              >
+                <div className="text-blue-400 mt-0.5">{edu.icon}</div>
+                <div>
+                  <h3 className="text-base font-semibold mb-0.5">{edu.degree}</h3>
+                  <p className="text-gray-400 text-sm">{edu.institution}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* ── CONTACT ── */}
       <section id="contact" className="py-32 relative">
         <Toaster position="top-right" />
-        <div className="absolute inset-0 cyber-grid opacity-20"></div>
+        <div className="absolute inset-0 cyber-grid opacity-10" />
         <div className="container mx-auto px-4 relative">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-20 gradient-text">
-            Let's Connect
-          </h2>
-          <div className="max-w-xl mx-auto">
-            <div className="flex justify-center space-x-8 mb-12">
-              <a 
-                href="https://github.com/gassenkalfallah" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-gray-400 hover:text-blue-400 transition-all transform hover:scale-110"
-              >
-                <Github className="w-10 h-10" />
-              </a>
-              <a 
-                href="https://www.linkedin.com/in/ghassenkhalfallah/" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-gray-400 hover:text-blue-400 transition-all transform hover:scale-110"
-              >
-                <Linkedin className="w-10 h-10" />
-              </a>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="max-w-lg mx-auto"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-center mb-3 gradient-text">
+              Open for Opportunities
+            </h2>
+            <p className="text-gray-400 text-center mb-10 text-sm leading-relaxed">
+              Whether it's a DevOps challenge, a cloud migration, or just to talk infrastructure —<br />
+              my inbox is a well-monitored pipeline.
+            </p>
+
+            <div className="flex justify-center gap-4 mb-10">
+              {[
+                { href: 'https://github.com/gassenkalfallah', icon: <Github className="w-5 h-5" />, label: 'GitHub' },
+                { href: 'https://www.linkedin.com/in/ghassenkhalfallah/', icon: <Linkedin className="w-5 h-5" />, label: 'LinkedIn' },
+              ].map(({ href, icon, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-5 py-2.5 glass-effect rounded-xl text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  {icon}
+                  {label}
+                </a>
+              ))}
             </div>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="glass-effect p-1 rounded-lg">
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="glass-effect rounded-xl overflow-hidden">
                 <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Your Email"
-                  required
-                  className="w-full px-6 py-4 bg-transparent outline-none text-white placeholder-gray-400"
+                  type="email" name="email" value={formData.email} onChange={handleChange}
+                  placeholder="your@email.com" required
+                  className="w-full px-6 py-4 bg-transparent outline-none text-white placeholder-gray-600 text-sm"
                 />
               </div>
-              <div className="glass-effect p-1 rounded-lg">
+              <div className="glass-effect rounded-xl overflow-hidden">
                 <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  placeholder="Your Message"
-                  required
-                  rows={6}
-                  className="w-full px-6 py-4 bg-transparent outline-none text-white placeholder-gray-400 resize-none"
-                ></textarea>
+                  name="message" value={formData.message} onChange={handleChange}
+                  placeholder="Tell me about your project, team, or challenge..."
+                  required rows={5}
+                  className="w-full px-6 py-4 bg-transparent outline-none text-white placeholder-gray-600 resize-none text-sm"
+                />
               </div>
-              <button 
-                type="submit"
-                disabled={isSubmitting}
-                className={`w-full bg-gradient-to-r from-blue-600 to-blue-400 px-8 py-4 rounded-lg font-semibold transition-all transform hover:scale-105 ${
-                  isSubmitting ? 'opacity-75 cursor-not-allowed' : 'hover:from-blue-500 hover:to-blue-300'
+              <button
+                type="submit" disabled={isSubmitting}
+                className={`w-full bg-gradient-to-r from-blue-600 to-cyan-500 px-8 py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${
+                  isSubmitting ? 'opacity-60 cursor-not-allowed' : 'hover:from-blue-500 hover:to-cyan-400 hover:scale-[1.02]'
                 }`}
               >
-                {isSubmitting ? 'Sending...' : 'Send Message'}
+                {isSubmitting ? 'Sending...' : (<><span>Send Message</span><ArrowRight className="w-4 h-4" /></>)}
               </button>
             </form>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      <footer className="py-8 border-t border-gray-800/50">
-        <div className="container mx-auto px-4 text-center text-gray-400">
-          <p className="text-sm">© 2025 Ghassen Khalfallah • Software Engineer & DevOps Specialist • Building the Future of Cloud Infrastructure</p>
+      {/* ── FOOTER ── */}
+      <footer className="py-8 border-t border-white/5">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-xs text-gray-600 font-mono">
+            © 2025 · Ghassen Khalfallah · DevOps Engineer · Automating the path from commit to production
+          </p>
         </div>
       </footer>
+
     </div>
   );
 }

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /d/portfolio -maxdepth 2 -type f -name package.json -o -name *.config.* -o -name .claude*)",
+      "Bash(npm ls:*)"
+    ]
+  }
+}
