@@ -31,6 +31,7 @@ import {
   Server,
   Activity,
   Send,
+  ArrowDownToLine,
 } from 'lucide-react';
 
 emailjs.init("cA1VSomT1TRDBhsq9");
@@ -443,7 +444,17 @@ function App() {
               </a>
             ))}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <a
+              href="/portfolio/cv_ghassen_khalfallah.pdf"
+              download="Ghassen_Khalfallah_CV.pdf"
+              target="_blank"
+              rel="noreferrer"
+              className="border border-green-400/30 text-green-400 font-mono text-[10px] px-2.5 py-1 rounded hover:bg-green-400/10 transition-colors flex items-center gap-1"
+            >
+              <ArrowDownToLine className="w-3 h-3" />
+              CV
+            </a>
             <span className="status-online text-[10px] font-mono text-green-400 flex items-center gap-1.5">
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
               ONLINE
@@ -467,7 +478,7 @@ function App() {
         )}
 
         {/* Subtle grid overlay */}
-        <div className="absolute inset-0 cyber-grid z-0 opacity-20" />
+        <div className="absolute inset-0 cyber-grid z-0 opacity-20 pointer-events-none" />
 
         <div className="container mx-auto px-6 z-10 relative pt-24">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
@@ -589,6 +600,16 @@ function App() {
                   <Activity className="w-3.5 h-3.5" />
                   View Status
                 </a>
+                <a
+                  href="/portfolio/cv_ghassen_khalfallah.pdf"
+                  download="Ghassen_Khalfallah_CV.pdf"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="cv-download-btn"
+                >
+                  <ArrowDownToLine className="w-3.5 h-3.5" />
+                  $ artifact pull resume.pdf
+                </a>
               </motion.div>
             </div>
 
@@ -600,12 +621,12 @@ function App() {
         </div>
 
         {/* Bottom fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-24 z-10" style={{ background: 'linear-gradient(to bottom, transparent, #020c1b)' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-24 z-10 pointer-events-none" style={{ background: 'linear-gradient(to bottom, transparent, #020c1b)' }} />
       </header>
 
       {/* ── ABOUT — Service Status ── */}
       <section id="about" className="py-28 relative overflow-hidden">
-        <div className="absolute inset-0 cyber-grid opacity-10" />
+        <div className="absolute inset-0 cyber-grid opacity-10 pointer-events-none" />
         <div className="container mx-auto px-6 relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -672,15 +693,15 @@ function App() {
               </motion.div>
             </motion.div>
 
-            {/* Right — Status Dashboard */}
+            {/* Right — Status Dashboard + Release Artifact */}
             <motion.div
               initial={{ opacity: 0, x: 24 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: 0.2 }}
-              className="lg:col-span-2"
+              className="lg:col-span-2 flex flex-col gap-5"
             >
-              <div className="status-card rounded-xl overflow-hidden h-full">
+              <div className="status-card rounded-xl overflow-hidden">
                 <div className="status-card-header px-5 py-3 flex items-center gap-2">
                   <Server className="w-3.5 h-3.5 text-cyan-400" />
                   <span className="font-mono text-xs text-cyan-400 tracking-widest">ENGINEER STATUS</span>
@@ -732,6 +753,45 @@ function App() {
                   </div>
                 </div>
               </div>
+
+              {/* LATEST RELEASE — artifact card */}
+              <div className="release-card rounded-xl overflow-hidden">
+                <div className="px-5 py-3 flex items-center gap-2" style={{ background: 'rgba(0,255,157,0.04)', borderBottom: '1px solid rgba(0,255,157,0.1)' }}>
+                  <Package className="w-3.5 h-3.5 text-green-400" />
+                  <span className="font-mono text-xs text-green-400 tracking-widest">LATEST RELEASE</span>
+                </div>
+                <div className="p-5 font-mono text-sm space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-400 text-base">📦</span>
+                    <span className="text-white font-semibold text-xs">resume.pdf</span>
+                  </div>
+                  <div className="text-slate-500 text-xs">ghassen/resume:latest</div>
+
+                  <div className="space-y-1.5 pt-1 border-t border-green-400/10">
+                    {[
+                      { key: 'size', value: '133KB' },
+                      { key: 'format', value: 'PDF' },
+                      { key: 'updated', value: '2025' },
+                    ].map(({ key, value }) => (
+                      <div key={key} className="flex justify-between items-center">
+                        <span className="text-slate-500 text-xs">{key}:</span>
+                        <span className="text-green-300 text-xs">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <a
+                    href="/portfolio/cv_ghassen_khalfallah.pdf"
+                    download="Ghassen_Khalfallah_CV.pdf"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="docker-pull-btn mt-2"
+                  >
+                    <ArrowDownToLine className="w-3.5 h-3.5 flex-shrink-0" />
+                    $ docker pull resume
+                  </a>
+                </div>
+              </div>
             </motion.div>
           </div>
         </div>
@@ -739,7 +799,7 @@ function App() {
 
       {/* ── SKILLS — Container Registry ── */}
       <section id="skills" className="py-28 relative overflow-hidden" style={{ background: 'rgba(2,12,27,0.95)' }}>
-        <div className="absolute inset-0 cyber-grid opacity-10" />
+        <div className="absolute inset-0 cyber-grid opacity-10 pointer-events-none" />
         <div className="container mx-auto px-6 relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -802,7 +862,7 @@ function App() {
 
       {/* ── EXPERIENCE — CI/CD Pipeline ── */}
       <section id="experience" className="py-28 relative">
-        <div className="absolute inset-0 cyber-grid opacity-10" />
+        <div className="absolute inset-0 cyber-grid opacity-10 pointer-events-none" />
         <div className="container mx-auto px-6 relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -897,7 +957,7 @@ function App() {
 
       {/* ── PROJECTS — Deployed Services ── */}
       <section id="projects" className="py-28 relative" style={{ background: 'rgba(2,12,27,0.95)' }}>
-        <div className="absolute inset-0 cyber-grid opacity-10" />
+        <div className="absolute inset-0 cyber-grid opacity-10 pointer-events-none" />
         <div className="container mx-auto px-6 relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -981,7 +1041,7 @@ function App() {
 
       {/* ── EDUCATION ── */}
       <section id="education" className="py-28 relative">
-        <div className="absolute inset-0 cyber-grid opacity-10" />
+        <div className="absolute inset-0 cyber-grid opacity-10 pointer-events-none" />
         <div className="container mx-auto px-6 relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -1034,7 +1094,7 @@ function App() {
             },
           }}
         />
-        <div className="absolute inset-0 cyber-grid opacity-10" />
+        <div className="absolute inset-0 cyber-grid opacity-10 pointer-events-none" />
         <div className="container mx-auto px-6 relative">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -1139,9 +1199,16 @@ function App() {
           <p className="text-[11px] text-slate-600 font-mono">
             © 2025 · Ghassen Khalfallah · DevOps Engineer
           </p>
-          <p className="text-[11px] text-slate-600 font-mono">
-            Automating the path from commit to production
-          </p>
+          <a
+            href="/portfolio/cv_ghassen_khalfallah.pdf"
+            download="Ghassen_Khalfallah_CV.pdf"
+            target="_blank"
+            rel="noreferrer"
+            className="text-[11px] text-green-400/50 font-mono hover:text-green-400 transition-colors flex items-center gap-1"
+          >
+            <ArrowDownToLine className="w-3 h-3" />
+            resume.pdf
+          </a>
           <div className="flex items-center gap-1.5">
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
             <span className="text-[11px] text-green-400/60 font-mono">ALL SYSTEMS OPERATIONAL</span>

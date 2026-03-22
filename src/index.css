@@ -770,3 +770,75 @@ body {
 .icon-spin {
   animation: spin 20s linear infinite;
 }
+
+
+/* ──────────────────────────────────────────────────────────────
+   CV DOWNLOAD — ARTIFACT PULL BUTTON
+   ────────────────────────────────────────────────────────────── */
+
+.cv-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  background: rgba(0, 255, 157, 0.05);
+  border: 1px solid rgba(0, 255, 157, 0.25);
+  color: #00ff9d;
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
+  transition: all 0.25s ease;
+  cursor: pointer;
+  animation: cv-pulse 3s ease infinite;
+  text-decoration: none;
+}
+
+.cv-download-btn:hover {
+  background: rgba(0, 255, 157, 0.12);
+  border-color: rgba(0, 255, 157, 0.5);
+  box-shadow: 0 0 20px rgba(0, 255, 157, 0.15);
+  transform: translateY(-1px);
+}
+
+@keyframes cv-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.2); }
+  50%       { box-shadow: 0 0 0 6px rgba(0, 255, 157, 0); }
+}
+
+/* Release artifact card */
+.release-card {
+  background: #061020;
+  border: 1px solid rgba(0, 255, 157, 0.12);
+  box-shadow: 0 0 30px rgba(0, 255, 157, 0.04);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.release-card:hover {
+  border-color: rgba(0, 255, 157, 0.25);
+  box-shadow: 0 0 40px rgba(0, 255, 157, 0.08);
+}
+
+.docker-pull-btn {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(0, 255, 157, 0.06);
+  border: 1px solid rgba(0, 255, 157, 0.2);
+  color: #00ff9d;
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+.docker-pull-btn:hover {
+  background: rgba(0, 255, 157, 0.12);
+  border-color: rgba(0, 255, 157, 0.4);
+  box-shadow: 0 0 16px rgba(0, 255, 157, 0.1);
+}
