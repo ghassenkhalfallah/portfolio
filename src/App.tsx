@@ -53,9 +53,11 @@ const staggerContainer = {
 // Terminal lines with typed-out animation
 const terminalLines = [
   { cmd: '$ git push origin main', result: '✓ Pipeline #247 triggered [2s]', delay: 0 },
-  { cmd: '$ docker build -t app:latest .', result: '✓ Image built (247MB) [18s]', delay: 2200 },
-  { cmd: '$ kubectl rollout status deploy/app', result: '✓ Rolled out to 3/3 pods [4s]', delay: 4400 },
-  { cmd: '$ terraform apply -auto-approve', result: '✓ 12 resources applied [32s]', delay: 6600 },
+  { cmd: '$ puppet apply --noop manifests/init.pp', result: '✓ 14 resources compiled, 0 errors [3s]', delay: 2200 },
+  { cmd: '$ terraform apply -auto-approve', result: '✓ 9 VMs provisioned across 3 envs [32s]', delay: 4400 },
+  { cmd: '$ docker build -t app:latest .', result: '✓ Image built (247MB) [18s]', delay: 6600 },
+  { cmd: '$ vault-manage-keys list', result: '✓ 3 workers · tokens refreshed [5min]', delay: 8800 },
+  { cmd: '$ kubectl rollout status deploy/app', result: '✓ Rolled out to 3/3 pods [4s]', delay: 11000 },
 ];
 
 function HeroTerminal() {
@@ -229,66 +231,91 @@ function App() {
       iconColor: 'text-cyan-400',
       accentClass: 'skill-accent-cyan',
       accentHex: '#22d3ee',
+      healthColor: '#22d3ee',
       title: 'Cloud Platforms',
-      desc: 'Provisions multi-region AWS and Azure environments with Terraform — reproducible infrastructure at scale, zero manual clicks.',
+      desc: 'Provisions multi-region AWS and Azure environments with Terraform IaC — from VM fleets to EKS clusters, reproducible at scale.',
       tools: ['AWS', 'Azure', 'Terraform', 'EKS'],
       badge: 'DEPLOYED',
       version: 'v3.1',
+      proficiency: 85,
+      digest: 'sha256:c4f9a1b7e2d08f3e · pulled 3 days ago',
+      pullCmd: 'docker pull ghassen/cloud-platforms:v3.1',
     },
     {
       icon: <GitBranch className="w-8 h-8" />,
       iconColor: 'text-purple-400',
       accentClass: 'skill-accent-purple',
       accentHex: '#c084fc',
+      healthColor: '#c084fc',
       title: 'DevOps & CI/CD',
       desc: 'Ships production-ready code through battle-tested GitLab pipelines with Docker containerization and Kubernetes orchestration.',
       tools: ['GitLab CI/CD', 'Docker', 'Kubernetes', 'Jenkins'],
       badge: 'RUNNING',
       version: 'latest',
+      proficiency: 92,
+      digest: 'sha256:a3f2b1d9c7e045ac · pulled 2 days ago',
+      pullCmd: 'docker pull ghassen/devops-cicd:latest',
     },
     {
       icon: <Boxes className="w-8 h-8" />,
       iconColor: 'text-orange-400',
       accentClass: 'skill-accent-orange',
       accentHex: '#fb923c',
+      healthColor: '#fb923c',
       title: 'Artifact Management',
       desc: 'Manages the full artifact lifecycle — every binary traceable, every release reproducible, zero dependency drift.',
-      tools: ['Nexus', 'Artifactory', 'Docker Hub', 'SharePoint'],
+      tools: ['Nexus', 'Artifactory', 'Docker Hub'],
       badge: 'PULLED',
       version: 'v2.4',
+      proficiency: 80,
+      digest: 'sha256:e8b3f2a1d0c94e7f · pulled 5 days ago',
+      pullCmd: 'docker pull ghassen/artifact-mgmt:v2.4',
     },
     {
       icon: <TestTube className="w-8 h-8" />,
       iconColor: 'text-green-400',
       accentClass: 'skill-accent-green',
       accentHex: '#4ade80',
+      healthColor: '#4ade80',
       title: 'Testing & Quality',
       desc: 'Runs parallel nightly test suites across live TPE hardware with X-Ray integration — bugs caught before they reach payment terminals.',
       tools: ['X-Ray', 'Test Automation', 'Integration Testing', 'CI Testing'],
       badge: 'PASSED',
       version: 'v1.8',
+      proficiency: 78,
+      digest: 'sha256:f1a0b8e3c2d59674 · pulled 1 day ago',
+      pullCmd: 'docker pull ghassen/testing-qa:v1.8',
     },
     {
       icon: <Terminal className="w-8 h-8" />,
       iconColor: 'text-yellow-400',
       accentClass: 'skill-accent-yellow',
       accentHex: '#facc15',
+      healthColor: '#facc15',
       title: 'Scripting & OS',
-      desc: 'Automates the unglamorous work — Shell, Bash, and Python scripts that run quietly in production and eliminate human error.',
-      tools: ['Shell Scripting', 'Linux', 'Bash', 'Python'],
+      desc: 'Automates the unglamorous work — Shell, Bash, and Python 3.12 scripts that run quietly in production and eliminate human error.',
+      tools: ['Shell Scripting', 'Linux', 'Bash', 'Python 3.12'],
       badge: 'ACTIVE',
       version: 'v4.0',
+      proficiency: 88,
+      digest: 'sha256:9d2c5e7b1f3a08e4 · pulled 4 days ago',
+      pullCmd: 'docker pull ghassen/scripting-os:v4.0',
     },
     {
-      icon: <Workflow className="w-8 h-8" />,
-      iconColor: 'text-pink-400',
-      accentClass: 'skill-accent-pink',
-      accentHex: '#f472b6',
-      title: 'Methodologies & Tools',
-      desc: 'Ships in 2-week sprints, tracks in Jira, reviews in Git — Agile discipline without ceremony overhead.',
-      tools: ['Agile', 'Scrum', 'Jira', 'Git'],
-      badge: 'MERGED',
-      version: 'v2.0',
+      icon: <Server className="w-8 h-8" />,
+      iconColor: 'text-emerald-400',
+      accentClass: 'skill-accent-emerald',
+      accentHex: '#34d399',
+      healthColor: '#34d399',
+      title: 'Config Management',
+      desc: 'Authors production Puppet modules with Hiera hierarchies and HashiCorp Vault AppRole integration — full lifecycle IaC from VM to running service.',
+      tools: ['Puppet 8', 'HashiCorp Vault', 'Hiera', 'RHEL 9', 'systemd'],
+      badge: 'DEPLOYED',
+      version: 'v1.5.2',
+      proficiency: 94,
+      digest: 'sha256:b7d4e9c2f1a305b8 · pulled just now',
+      pullCmd: 'docker pull ghassen/config-mgmt:v1.5.2',
+      isNew: true,
     },
   ];
 
@@ -298,15 +325,35 @@ function App() {
       company: 'Telnet × Worldline',
       period: 'Sep 2023 — Present',
       status: 'RUNNING',
-      highlight: 'Building the CI/CD backbone behind global payment terminal software.',
+      commitCount: '40+',
+      highlight: 'Building CI/CD pipelines, Puppet IaC modules, and multi-environment infrastructure for global payment software.',
       body: (
         <>
           <p className="text-slate-300 text-sm mb-5 leading-relaxed">
-            Embedded with Worldline — a global leader in electronic payment solutions — designing and maintaining the DevOps infrastructure that underpins TPE software development and release cycles.
+            Embedded with Worldline — a global leader in electronic payment solutions — designing and owning the full DevOps stack: CI/CD pipelines, configuration management, infrastructure provisioning, and automated testing for TPE and conversion service software.
           </p>
+
+          {/* Impact numbers strip */}
+          <div className="impact-strip mb-5">
+            {[
+              { value: '9', label: 'VMs Provisioned' },
+              { value: '3', label: 'Environments' },
+              { value: '5 min', label: 'Secret Rotation' },
+              { value: '<60s', label: 'Deploy Time' },
+              { value: '674', label: 'Lines DSL' },
+              { value: '3', label: 'Workers / VM' },
+            ].map(({ value, label }) => (
+              <div key={label} className="impact-chip">
+                <span className="impact-chip-value">{value}</span>
+                <span className="impact-chip-label">{label}</span>
+              </div>
+            ))}
+          </div>
+
           <h4 className="text-xs font-semibold text-cyan-400 uppercase tracking-widest mb-3">Key Wins</h4>
           <ul className="space-y-3 text-sm text-slate-300 mb-5">
             {[
+              ['Axis Provisioning Converter', 'Built a production Puppet module (v1.5.2) from scratch — 5 classes, 674 lines of DSL — orchestrating 3 parallel Python workers per VM with HashiCorp Vault AppRole secret rotation every 5 minutes. Provisioned 9 VMs across sandbox/preprod/production with Terraform.'],
               ['Terminal Packager', 'Automated consolidation of 15+ TPE software components into validated packages — reduced packaging time from hours to under 60 seconds, deployed to production.'],
               ['Infrastructure Resilience', 'Built a Docker-based local simulation of payment servers (acquirer + treatment) that kept development unblocked during a major infrastructure migration.'],
               ['Automated TPE Testing', 'Architected a CI/CD-driven testing system with nightly parallel runs across multiple physical payment terminals — results integrated with X-Ray for instant visibility.'],
@@ -317,9 +364,39 @@ function App() {
               </li>
             ))}
           </ul>
+
+          {/* Pipeline log output widget */}
+          <div className="pipeline-log">
+            <div className="pipeline-log-header">
+              <span className="inline-block w-2 h-2 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
+              <span className="font-mono text-[10px] text-green-400 tracking-widest">LIVE DEPLOY LOG</span>
+              <span className="ml-auto font-mono text-[9px] text-slate-600">gitlab-runner #247</span>
+            </div>
+            <div className="pipeline-log-body">
+              {[
+                { ts: '09:23:01', icon: '✓', text: 'puppet apply --noop passed (14 resources)', type: 'success' },
+                { ts: '09:23:47', icon: '✓', text: 'vault-sync: AppRole tokens refreshed (3 workers)', type: 'success' },
+                { ts: '09:24:12', icon: '✓', text: 'terraform plan: 0 changes, infrastructure up-to-date', type: 'info' },
+                { ts: '09:24:55', icon: '✓', text: 'deploy/axis-converter rollout complete (9/9 VMs)', type: 'success' },
+                { ts: '09:25:03', icon: '✓', text: 'health-check: all 27 workers responding on :8000 :8080 :8090', type: 'success' },
+              ].map(({ ts, icon, text, type }, i) => (
+                <div key={i} className={type === 'success' ? 'log-line-success' : 'log-line-info'}>
+                  <span className="log-timestamp">[{ts}]</span>
+                  <span>{icon} {text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </>
       ),
-      stack: ['Docker', 'GitLab CI/CD', 'Nexus', 'Artifactory', 'X-Ray', 'Shell', 'Linux'],
+      stackGrouped: [
+        { cat: 'IaC', items: ['Puppet 8', 'Terraform', 'Hiera'] },
+        { cat: 'Secrets', items: ['HashiCorp Vault'] },
+        { cat: 'Containers', items: ['Docker'] },
+        { cat: 'Pipeline', items: ['GitLab CI/CD', 'Nexus', 'X-Ray'] },
+        { cat: 'OS', items: ['RHEL 9', 'Linux', 'Shell', 'Python 3.12'] },
+      ],
+      stack: null,
     },
     {
       role: 'DevOps & Cloud Engineer Intern',
@@ -354,6 +431,21 @@ function App() {
   ];
 
   const projects = [
+    {
+      title: 'Axis Provisioning Converter',
+      subtitle: 'Puppet · Terraform · Vault · Worldline/Ingenico',
+      env: 'PRODUCTION',
+      envColor: 'text-green-400',
+      envBg: 'bg-green-400/10 border-green-400/20',
+      icon: <Server className="w-6 h-6" />,
+      iconColor: 'text-green-400',
+      problem: 'Payment conversion services required reproducible, multi-environment deployment with zero-downtime updates and enterprise-grade secret management — none of which existed.',
+      solution: 'Built a production Puppet module (v1.5.2) from scratch — 5 classes, 674 lines of DSL — orchestrating 3 parallel Python workers per VM, HashiCorp Vault AppRole integration for automatic API key rotation every 5 minutes, and Terraform-provisioned VMs across 3 environments.',
+      outcome: '9 VMs deployed across sandbox/preprod/production via Terraform. Zero-downtime config reloads, secrets auto-rotate every 5 min, 6 merchant rate-limit categories enforced in production.',
+      tags: ['Puppet 8', 'Terraform', 'HashiCorp Vault', 'RHEL 9', 'Python 3.12', 'GitLab CI/CD', 'Nexus', 'Hiera'],
+      metrics: ['9 VMs · 3 Envs', '5-min Secret Rotation', '3 Workers/VM'],
+      featured: true,
+    },
     {
       title: 'Terminal Packager',
       subtitle: 'Internal Platform Tool · Worldline / Telnet',
@@ -810,6 +902,9 @@ function App() {
           >
             <div className="section-label mb-3">// CONTAINER REGISTRY</div>
             <h2 className="text-3xl md:text-4xl font-bold gradient-text-devops">Technical Arsenal</h2>
+            <p className="font-mono text-[11px] text-slate-500 mt-3 tracking-wider">
+              registry.ghassen.devops/skills — <span className="text-cyan-400/70">{skills.length} images available</span>
+            </p>
           </motion.div>
 
           <motion.div
@@ -824,26 +919,39 @@ function App() {
                 key={index}
                 variants={fadeUp}
                 custom={index}
-                className={`skill-card glass-devops rounded-xl overflow-hidden ${skill.accentClass}`}
+                whileHover={{ y: -4 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                className={`skill-card glass-devops rounded-xl overflow-hidden ${skill.accentClass} ${skill.isNew ? 'skill-card-new' : ''}`}
+                style={skill.isNew ? { boxShadow: '0 0 0 1px rgba(52,211,153,0.25), 0 0 40px rgba(52,211,153,0.08)' } : {}}
               >
                 {/* Card header bar */}
                 <div className="skill-card-header flex items-center justify-between px-4 py-2.5" style={{ borderBottom: `1px solid rgba(255,255,255,0.06)` }}>
                   <div className="flex items-center gap-2">
-                    <span className={`${skill.iconColor}`}>{skill.icon}</span>
+                    {/* Heartbeat live dot */}
+                    <span
+                      className="skill-heartbeat"
+                      style={{ color: skill.accentHex }}
+                    />
+                    <span className={`${skill.iconColor}`}>{React.cloneElement(skill.icon as React.ReactElement, { className: 'w-4 h-4' })}</span>
                     <span className="font-mono text-xs text-slate-300 font-semibold">{skill.title}</span>
                   </div>
-                  <span className={`skill-badge text-[9px] font-mono font-bold ${
-                    skill.badge === 'RUNNING' ? 'badge-running' :
-                    skill.badge === 'DEPLOYED' ? 'badge-deployed' :
-                    'badge-default'
-                  }`}>
-                    {skill.badge}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {skill.isNew && (
+                      <span className="skill-badge badge-new text-[8px] font-mono font-bold px-1.5 py-0.5 rounded">NEW</span>
+                    )}
+                    <span className={`skill-badge text-[9px] font-mono font-bold ${
+                      skill.badge === 'RUNNING' ? 'badge-running' :
+                      skill.badge === 'DEPLOYED' ? 'badge-deployed' :
+                      'badge-default'
+                    }`}>
+                      {skill.badge}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Card body */}
-                <div className="px-4 py-4">
-                  <p className="text-slate-400 text-xs leading-relaxed mb-4">{skill.desc}</p>
+                <div className="px-4 py-4 flex flex-col gap-3">
+                  <p className="text-slate-400 text-xs leading-relaxed">{skill.desc}</p>
 
                   {/* Docker-style tags */}
                   <div className="flex flex-wrap gap-1.5">
@@ -852,6 +960,35 @@ function App() {
                     {skill.tools.map((tool, i) => (
                       <span key={i} className="docker-tag">{tool}</span>
                     ))}
+                  </div>
+
+                  {/* Health check bar */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-mono text-[9px] text-slate-500 uppercase tracking-widest">Health Check</span>
+                      <span className="font-mono text-[9px]" style={{ color: skill.accentHex }}>{skill.proficiency}%</span>
+                    </div>
+                    <div className="health-bar-track">
+                      <motion.div
+                        className="health-bar-fill"
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${skill.proficiency}%` }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 1.2, delay: index * 0.1, ease: 'easeOut' }}
+                        style={{ background: skill.accentHex, color: skill.accentHex }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Image digest + pull command */}
+                  <div className="border-t border-white/5 pt-2">
+                    <div className="img-digest mb-2">{skill.digest}</div>
+                    <div className="skill-card-pull">
+                      <span className="pull-cmd">
+                        <span style={{ color: skill.accentHex }}>$</span>
+                        {skill.pullCmd}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -892,19 +1029,30 @@ function App() {
                   >
                     {/* Stage node centered on track */}
                     <div className="pipeline-node-wrap">
-                      <div className="pipeline-node">
+                      <div className={`pipeline-node ${exp.status === 'RUNNING' ? '' : 'border-cyan-500/50'}`}
+                        style={exp.status === 'RUNNING' ? {} : { animation: 'none', boxShadow: 'none', borderColor: 'rgba(0,212,255,0.35)' }}
+                      >
                         <span className="font-mono text-[8px] text-cyan-400">{index + 1}</span>
                       </div>
                     </div>
 
                     {/* Stage card */}
                     <div className="glass-devops rounded-xl overflow-hidden">
-                      {/* Stage header */}
-                      <div className="flex items-center justify-between px-5 py-3 border-b border-white/5">
-                        <div className="flex items-center gap-3">
+                      {/* Stage header — enriched */}
+                      <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-b border-white/5">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className="font-mono text-[10px] text-slate-500 tracking-widest">STAGE {index + 1}</span>
-                          <span className="text-slate-600">·</span>
+                          <span className="text-slate-700">·</span>
                           <span className="font-mono text-xs text-slate-400">{exp.period}</span>
+                          {'commitCount' in exp && exp.commitCount && (
+                            <>
+                              <span className="text-slate-700">·</span>
+                              <span className="commit-badge">
+                                <GitBranch className="w-2.5 h-2.5" />
+                                {exp.commitCount} commits
+                              </span>
+                            </>
+                          )}
                         </div>
                         <span className={`pipeline-status ${exp.status === 'RUNNING' ? 'status-running' : 'status-success'}`}>
                           {exp.status === 'RUNNING' ? (
@@ -936,6 +1084,26 @@ function App() {
                           </ul>
                         )}
 
+                        {/* Technology constellation — grouped stack */}
+                        {'stackGrouped' in exp && exp.stackGrouped && (
+                          <div className="pt-3 border-t border-white/5">
+                            <div className="font-mono text-[9px] text-slate-500 uppercase tracking-widest mb-3">Tech Constellation</div>
+                            <div className="space-y-1.5">
+                              {exp.stackGrouped.map(({ cat, items }) => (
+                                <div key={cat} className="stack-group">
+                                  <span className="stack-cat-label">{cat}:</span>
+                                  {items.map((tech, i) => (
+                                    <span key={i} className="px-2 py-0.5 bg-cyan-500/10 border border-cyan-500/20 rounded font-mono text-cyan-300 text-[10px]">
+                                      {tech}
+                                    </span>
+                                  ))}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Flat stack for non-grouped entries */}
                         {exp.stack && (
                           <div className="flex flex-wrap gap-1.5 pt-2">
                             {exp.stack.map((tech, i) => (
@@ -977,11 +1145,92 @@ function App() {
             viewport={{ once: true }}
             className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto"
           >
-            {projects.map((project, index) => (
+            {/* Featured project — full width */}
+            {projects[0].featured && (
               <motion.div
-                key={index}
                 variants={fadeUp}
-                custom={index}
+                custom={0}
+                className="project-deploy-card glass-devops rounded-xl overflow-hidden flex flex-col md:col-span-2"
+              >
+                {/* Deployment status bar */}
+                <div className={`flex items-center justify-between px-4 py-2.5 border-b ${projects[0].envBg}`}>
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block w-2 h-2 rounded-full animate-pulse bg-green-400" />
+                    <span className={`font-mono text-[10px] font-bold tracking-widest ${projects[0].envColor}`}>
+                      ● {projects[0].env}
+                    </span>
+                    <span className="ml-2 font-mono text-[9px] text-green-400/60 border border-green-400/20 rounded px-1.5 py-0.5 tracking-widest">FEATURED</span>
+                  </div>
+                  <span className={projects[0].iconColor}>{projects[0].icon}</span>
+                </div>
+
+                {/* Card content */}
+                <div className="p-5 flex flex-col flex-1">
+                  <div className="md:flex md:gap-8">
+                    {/* Left column */}
+                    <div className="md:flex-1">
+                      <h3 className="font-bold text-white text-lg mb-0.5">{projects[0].title}</h3>
+                      <p className="font-mono text-[10px] text-slate-500 mb-4">{projects[0].subtitle}</p>
+
+                      <div className="space-y-2.5 mb-5">
+                        <p className="text-xs text-slate-400">
+                          <span className="text-red-400/80 font-mono text-[9px] uppercase tracking-wider font-bold">PROBLEM · </span>
+                          {projects[0].problem}
+                        </p>
+                        <p className="text-xs text-slate-300">
+                          <span className="text-cyan-400/80 font-mono text-[9px] uppercase tracking-wider font-bold">SOLUTION · </span>
+                          {projects[0].solution}
+                        </p>
+                        <p className="text-xs text-white font-medium">
+                          <span className="text-green-400/80 font-mono text-[9px] uppercase tracking-wider font-bold">OUTCOME · </span>
+                          {projects[0].outcome}
+                        </p>
+                      </div>
+
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-1.5 mb-4">
+                        {projects[0].tags.map((tag, i) => (
+                          <span key={i} className="docker-tag text-[10px]">{tag}</span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Right column — infra stats */}
+                    <div className="md:w-52 md:flex-shrink-0">
+                      <div className="font-mono text-[9px] text-slate-500 uppercase tracking-widest mb-2">Infrastructure</div>
+                      <div className="grid grid-cols-2 gap-2 mb-4">
+                        {[
+                          { label: '9 VMs', sub: 'Total' },
+                          { label: '3 Envs', sub: 'Sandbox→Prod' },
+                          { label: '5 Classes', sub: 'Puppet DSL' },
+                          { label: 'v1.5.2', sub: 'Latest Tag' },
+                        ].map((stat, i) => (
+                          <div key={i} className="metric-widget text-center py-2 px-1 rounded">
+                            <span className="text-[11px] text-green-300 leading-tight block font-mono font-bold">{stat.label}</span>
+                            <span className="text-[9px] text-slate-500 font-mono">{stat.sub}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="font-mono text-[9px] text-slate-500 uppercase tracking-widest mb-2">Metrics</div>
+                      <div className="grid grid-cols-1 gap-2">
+                        {projects[0].metrics.map((metric, i) => (
+                          <div key={i} className="metric-widget text-center py-2 px-1 rounded">
+                            <span className="text-[10px] text-cyan-300 leading-tight block font-mono">{metric}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Remaining projects — 2-column grid */}
+            {projects.slice(1).map((project, index) => (
+              <motion.div
+                key={index + 1}
+                variants={fadeUp}
+                custom={index + 1}
                 className="project-deploy-card glass-devops rounded-xl overflow-hidden flex flex-col"
               >
                 {/* Deployment status bar */}
